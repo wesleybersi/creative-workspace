@@ -1,0 +1,80 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  overflow-x: hidden;
+}
+
+body {
+  font-family: "Poppins", Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  background-color: #e8ebf4;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-text-size-adjust: 100%;
+  --padding: 1rem;
+  --lightgrey: #e3e9ec;
+  --grey: #bac7cd;
+  --primary: #2162a6;
+  --primary: #45b4f9;
+}
+
+ul {
+  list-style-type: none;
+}
+
+p,
+li,
+a {
+  font-size: 1.1rem;
+  font-weight: 500;
+  opacity: 0.85;
+}
+
+a {
+  text-decoration: none;
+  color: unset;
+  &:hover {
+    color: red;
+  }
+}
+
+@keyframes harvest {
+  from {
+    scale: 1;
+    opacity: 1;
+  }
+  to {
+    scale: 0;
+    opacity: 0;
+  }
+}
+
+button {
+  padding: 0.75rem 2rem;
+  border-radius: 100vw;
+  border: none;
+  background-color: white;
+  border: 3px solid var(--primary);
+  color: var(--primary);
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+}
+.button-fill {
+  padding: 0.75rem 2rem;
+  border-radius: 100vw;
+  border: none;
+  background-color: var(--primary);
+  border: 3px solid var(--primary);
+  color: white;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+}

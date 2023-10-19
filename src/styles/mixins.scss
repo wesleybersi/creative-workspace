@@ -1,0 +1,9 @@
+@mixin section-width {
+  width: min(100%);
+  margin: 0 auto;
+}
+
+@mixin randomRotation($min, $max) {
+  $randomAngle: random(($max - $min + 1)) + $min;
+  transform: rotate($randomAngle * 1deg);
+}

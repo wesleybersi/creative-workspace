@@ -1,0 +1,23 @@
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--padding) * 2);
+
+  ul {
+    display: flex;
+    flex-direction: column;
+    list-style-type: none;
+    gap: var(--padding);
+    opacity: 0.75;
+    a {
+      cursor: pointer;
+      display: flex;
+      gap: calc(var(--padding) * 2);
+      align-items: center;
+      font-size: 1.1rem;
+      svg {
+        scale: 1.35;
+      }
+    }
+  }
+}

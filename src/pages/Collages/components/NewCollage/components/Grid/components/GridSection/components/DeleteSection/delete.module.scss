@@ -1,0 +1,14 @@
+.delete {
+  display: grid;
+  place-content: center;
+  width: 3rem;
+  border: 3px solid var(--primary);
+  background-color: white;
+  color: var(--primary);
+  border-radius: 50%;
+  position: absolute;
+  top: -1.5rem;
+  right: -1.5rem;
+  aspect-ratio: 1;
+  z-index: 101;
+}

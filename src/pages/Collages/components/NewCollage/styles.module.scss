@@ -1,0 +1,8 @@
+.selectedSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--padding);
+  position: fixed;
+  overflow: hidden;
+  border: 2px solid green;
+}

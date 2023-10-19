@@ -1,0 +1,16 @@
+$progress-size: 60%;
+
+.wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: $progress-size;
+  width: $progress-size;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: $progress-size;
+  height: $progress-size;
+  border-radius: 50%;
+}

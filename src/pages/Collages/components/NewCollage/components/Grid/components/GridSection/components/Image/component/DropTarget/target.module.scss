@@ -1,0 +1,12 @@
+.target {
+  position: absolute;
+  width: calc(100% - (var(--padding) * 0.8) * 2);
+  height: calc(100% - (var(--padding) * 0.8) * 2);
+  user-select: none;
+  display: grid;
+  place-content: center;
+  color: var(--grey);
+
+  inset: calc(var(--padding) * 0.8);
+  //   border: 2px dashed var(--grey);
+}
