@@ -7,6 +7,7 @@
   transition: opacity 250ms ease;
   position: relative;
   padding: 0.4rem;
+
   .mainOffset {
     box-shadow: 1px 2px 3px 1px rgba(0, 0, 0, 0.125);
     position: relative;
@@ -71,8 +72,8 @@
     left: -2px;
 
     pointer-events: none;
-    --size: 12px;
-    --half-size: 6px;
+    --size: 10px;
+    --half-size: 5px;
 
     * {
       pointer-events: all;
@@ -83,6 +84,9 @@
       border-radius: 50%;
       position: absolute;
       z-index: 200;
+      &:hover {
+        outline: 3px solid var(--primary);
+      }
     }
     .tl {
       top: calc(var(--half-size) * -1);

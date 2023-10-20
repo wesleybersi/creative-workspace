@@ -5,19 +5,13 @@ import styles from "./delete.module.scss";
 import useStore from "../../../../../../../../store/store";
 import Section from "../../../../../../../../store/data/section";
 
-const DeleteSection = ({
-  index,
-  section,
-}: {
-  index: number;
-  section: Section;
-}) => {
-  const { clearSection } = useStore();
+const DeleteSection = ({ section }: { index: number; section: Section }) => {
+  const { deleteSection: clearSection } = useStore();
   return (
     <div
       className={styles.delete}
       onClick={() => {
-        clearSection(index, section.id);
+        clearSection(section.boardId, section.id);
       }}
     >
       <IconDelete size="32px" />

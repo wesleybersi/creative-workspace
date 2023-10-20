@@ -12,22 +12,22 @@ const Preview = ({
   gutter?: string;
 }) => {
   const navigate = useNavigate();
-  const { client } = useStore();
-  const collage = client.collages[index];
+  const { boards } = useStore();
+  const board = boards[index];
   const [images, setImages] = useState<Map<Section, string>>(new Map());
 
   useEffect(() => {
-    if (!collage) return;
+    if (!board) return;
     const images = new Map();
-    for (const section of collage.sections) {
+    for (const section of board.sections) {
       if (!section.image) continue;
       const imageURL = URL.createObjectURL(section.image);
       images.set(section, imageURL);
     }
     setImages(images);
-  }, [collage]);
+  }, [board]);
 
-  if (!collage) return;
+  if (!board) return;
 
   return (
     <section
@@ -37,12 +37,12 @@ const Preview = ({
       <div
         className={styles.under}
         style={{
-          gridTemplateColumns: `repeat(${collage.size.cols},1fr)`,
-          gridTemplateRows: `repeat(${collage.size.rows},1fr)`,
+          gridTemplateColumns: `repeat(${board.size.cols},1fr)`,
+          gridTemplateRows: `repeat(${board.size.rows},1fr)`,
           gridGap: gutter,
         }}
       >
-        {collage.tiles.flat().map(() => {
+        {board.tiles.flat().map(() => {
           return (
             <div
               className={styles.section}
@@ -57,12 +57,12 @@ const Preview = ({
       <div
         className={styles.grid}
         style={{
-          gridTemplateColumns: `repeat(${collage.size.cols},1fr)`,
-          gridTemplateRows: `repeat(${collage.size.rows},1fr)`,
+          gridTemplateColumns: `repeat(${board.size.cols},1fr)`,
+          gridTemplateRows: `repeat(${board.size.rows},1fr)`,
           gridGap: gutter,
         }}
       >
-        {collage.sections.map((section) => {
+        {board.sections.map((section) => {
           const { position } = section;
           const { row, col } = position;
           return (
@@ -86,9 +86,9 @@ const Preview = ({
         })}
       </div>
 
-      {/* <div className={styles.name}>
-        <p>{collage.name}</p>
-      </div> */}
+      <div className={styles.name}>
+        <p>{board.name}</p>
+      </div>
     </section>
   );
 };

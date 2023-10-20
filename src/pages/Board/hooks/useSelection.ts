@@ -1,11 +1,11 @@
 import { useEffect } from "react";
 import { Selection } from "../local-store/types";
-import Collage from "../../../store/data/collage";
+import Board from "../../../store/data/board";
 import useCollage from "../local-store/useCollage";
 
 export default function useSelection(
   selection: Selection | null,
-  collage: Collage
+  collage: Board
 ) {
   const { set } = useCollage();
 

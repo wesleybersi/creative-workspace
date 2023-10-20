@@ -13,7 +13,7 @@ import _Board from "./pages/Board/Board";
 
 function App() {
   const navigate = useNavigate();
-  const { client, set, mode } = useStore();
+  const { boards, set, mode } = useStore();
 
   const routes = [
     {
@@ -22,6 +22,10 @@ function App() {
       element: <_Boards />,
     },
   ];
+
+  useEffect(() => {
+    console.log(boards);
+  }, [boards]);
 
   useEffect(() => {
     navigate("boards");
@@ -76,12 +80,13 @@ function App() {
         {routes.map(({ path, element }) => (
           <Route path={path} element={element} />
         ))}
-        {client.collages.map(({ name }, index) => (
-          <Route
-            path={`boards/board${(index + 1).toString()}`}
-            element={<_Board index={index} />}
-          />
-        ))}
+        {boards.length > 0 &&
+          boards.map((_, index) => (
+            <Route
+              path={`boards/board${index + 1}`}
+              element={<_Board index={index} />}
+            />
+          ))}
       </Routes>
       <Tooltip />
     </div>

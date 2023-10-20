@@ -15,7 +15,7 @@ interface Props {
 
 const Image: React.FC<Props> = ({ section }) => {
   const { selectedSection } = useCollage();
-  const { setSectionImage } = useStore();
+  const { updateSection } = useStore();
   const [backgroundImage, setBackgroundImage] = useState<string>("");
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [zoomLevel, setZoomLevel] = useState<number>(0);
@@ -35,9 +35,10 @@ const Image: React.FC<Props> = ({ section }) => {
   };
 
   const uploadImage = (file: File) => {
-    // Implement your upload logic here
-    console.log("Uploading file:", file);
-    setSectionImage(section, file);
+    updateSection(section.boardId, section.id, (section) => {
+      section.image = file;
+      return section;
+    });
   };
 
   useEffect(() => {
@@ -53,14 +54,14 @@ const Image: React.FC<Props> = ({ section }) => {
     <div
       className={styles.wrapper}
       style={{ background: backgroundImage ? `url(${backgroundImage})` : "" }}
-      //   onMouseMove={(event) => {
-      //     if (isMouseDown) {
-      //       event.currentTarget.style.backgroundPositionX = event.clientX + "px";
-      //       event.currentTarget.style.backgroundPositionY = event.clientY + "px";
-      //     }
-      //   }}
-      //   onMouseDown={() => setIsMouseDown(true)}
-      //   onMouseUp={() => setIsMouseDown(false)}
+      onMouseMove={(event) => {
+        if (isMouseDown) {
+          event.currentTarget.style.backgroundPositionX = event.clientX + "px";
+          event.currentTarget.style.backgroundPositionY = event.clientY + "px";
+        }
+      }}
+      onMouseDown={() => setIsMouseDown(true)}
+      onMouseUp={() => setIsMouseDown(false)}
     >
       <div className={styles.content}>
         <div className={styles.upload}>
@@ -97,7 +98,10 @@ const Image: React.FC<Props> = ({ section }) => {
                 icon: IconClear,
                 isSelected: false,
                 onClick: () => {
-                  setSectionImage(section, null);
+                  updateSection(section.boardId, section.id, (section) => {
+                    section.image = null;
+                    return section;
+                  });
                 },
               },
               {

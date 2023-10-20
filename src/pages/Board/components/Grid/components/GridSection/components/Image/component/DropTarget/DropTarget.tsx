@@ -7,18 +7,20 @@ interface Props {
   section: Section;
 }
 const DropTarget: React.FC<Props> = ({ section }) => {
-  const { setSectionImage } = useStore();
+  const { updateSection } = useStore();
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
-    const data = e.dataTransfer.files[0];
+    const image = e.dataTransfer.files[0];
     console.log("Image dropped!");
-    if (data) {
-      setSectionImage(section, data);
+    if (image) {
+      updateSection(section.boardId, section.id, (section) => {
+        section.image = image;
+        return section;
+      });
     }
   };
 
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
-    console.log("DRAGGING OVER");
     e.preventDefault();
   };
 
@@ -27,15 +29,23 @@ const DropTarget: React.FC<Props> = ({ section }) => {
       className={styles.target}
       onDrop={(e) => handleDrop(e)}
       onDragOver={(e) => handleDragOver(e)}
-      style={{ opacity: section.image ? 0 : 1 }}
+      style={{
+        opacity: section.image ? 0 : 1,
+      }}
     >
       {!section.image && (
         <>
           <div className={styles.uploadIcon}>
-            <IconUpload size="48px" />
+            <IconUpload
+              size={
+                section.size.cols === 1 || section.size.rows === 1
+                  ? "40px"
+                  : "48px"
+              }
+            />
           </div>
 
-          {section.size.cols >= 2 && section.size.rows >= 2 && (
+          {section.size.cols > 2 && section.size.rows > 2 && (
             <p>Drop image here</p>
           )}
         </>

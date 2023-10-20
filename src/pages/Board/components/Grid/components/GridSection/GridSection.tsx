@@ -15,6 +15,7 @@ import ToDo from "./components/ToDo/ToDo";
 import List from "./components/List/List";
 import Indexing from "./components/Indexing/Indexing";
 import { PiDotsSix as IconHandle } from "react-icons/pi";
+import useHandles from "./hooks/useHandles";
 
 interface Props {
   section: Section;
@@ -24,18 +25,15 @@ interface Props {
 
 const GridSection: React.FC<Props> = ({ section, dragIndex, dragDim }) => {
   const { set, selectedSection, collageIndex, draggedSection } = useCollage();
-  const {
-    newestSection,
-    isMouseDown: isMouseDownGlobal,
-    expandSection,
-  } = useStore();
+  const { newestSectionId, isMouseDown: isMouseDownGlobal } = useStore();
   const [isMouseDown, setIsMouseDown] = useState<boolean>(false);
-  const [didResize, setDidResize] = useState<boolean>(false);
 
   const sectionRef = useRef<HTMLDivElement | null>(null);
-  const [currentHandle, setCurrentHandle] = useState<
-    "tl" | "tr" | "tc" | "bc" | "bl" | "br" | "cl" | "cr" | ""
-  >("");
+  const [handles, currentHandle, setCurrentHandle] = useHandles(
+    section,
+    sectionRef.current
+  );
+
   const [selectedPage, setSelectedPage] = useState<number>(0);
   const [dragTimer, setDragTimer] = useState<number>(0);
   const [dragEvent, setDragEvent] = useState<React.MouseEvent<
@@ -48,12 +46,6 @@ const GridSection: React.FC<Props> = ({ section, dragIndex, dragDim }) => {
     x: 0,
     y: 0,
   });
-
-  useEffect(() => {
-    if (newestSection) {
-      set({ selectedSection: null });
-    }
-  }, [newestSection]);
 
   useEffect(() => {
     if (!isMouseDownGlobal) {
@@ -86,99 +78,6 @@ const GridSection: React.FC<Props> = ({ section, dragIndex, dragDim }) => {
       setDragEvent(null);
     }
   }, [dragTimer, isMouseDown, dragEvent]);
-
-  useEffect(() => {
-    if (!currentHandle || !sectionRef.current) return;
-    window?.getSelection()?.removeAllRanges();
-    function mousemove(event: MouseEvent) {
-      if (!currentHandle || !sectionRef.current) return;
-      console.log(
-        "Trying",
-        currentHandle,
-        section.position.col.start,
-        section.position.row.start
-      );
-      const x = event.clientX;
-      const y = event.clientY;
-      const rect = sectionRef.current?.getBoundingClientRect();
-      const offset = 32;
-      let direction: "in" | "out" = "in";
-      let isResize = false;
-      if (!rect) return;
-
-      switch (currentHandle) {
-        case "tl":
-          if (x < rect.left - offset || y < rect.top - offset) {
-            direction = "out";
-          } else if (x > rect.left + offset && y > rect.top + offset) {
-            direction = "in";
-          } else break;
-          isResize = true;
-          break;
-        case "tr":
-          if (x > rect.right + offset || y < rect.top - offset) {
-            direction = "out";
-          } else if (x < rect.right - offset && y > rect.top + offset) {
-            direction = "in";
-          } else break;
-          isResize = true;
-          break;
-        case "tc":
-          if (y < rect.top - offset) {
-            direction = "out";
-          } else if (y > rect.top + offset) {
-            direction = "in";
-          } else break;
-          isResize = true;
-          break;
-        case "cl":
-          if (x < rect.left - offset) {
-            direction = "out";
-          } else if (x > rect.left + offset) {
-            direction = "in";
-          } else break;
-          isResize = true;
-          break;
-        case "cr":
-          if (x > rect.right + offset) {
-            direction = "out";
-          } else if (x < rect.right - offset) {
-            direction = "in";
-          } else break;
-          isResize = true;
-          break;
-        case "bl":
-          if (x < rect.left - offset || y > rect.bottom + offset) {
-            direction = "out";
-          } else if (x > rect.left + offset && y < rect.bottom - offset) {
-            direction = "in";
-          } else break;
-          isResize = true;
-          break;
-        case "br":
-          if (x > rect.right + offset || y > rect.bottom + offset) {
-            direction = "out";
-          } else if (x < rect.right - offset && y < rect.bottom - offset) {
-            direction = "in";
-          } else break;
-          isResize = true;
-          break;
-        case "bc":
-          if (y > rect.bottom + offset) {
-            direction = "out";
-          } else if (y < rect.bottom - offset) {
-            direction = "in";
-          } else break;
-          isResize = true;
-          break;
-      }
-      if (isResize) {
-        expandSection(collageIndex, section.id, direction, currentHandle);
-      }
-    }
-    window.addEventListener("mousemove", mousemove);
-    return () => window.removeEventListener("mousemove", mousemove);
-  }, [currentHandle, sectionRef.current]);
 
   return (
     <main
@@ -247,41 +146,17 @@ const GridSection: React.FC<Props> = ({ section, dragIndex, dragDim }) => {
         {selectedSection?.id === section.id && (
           <>
             <div className={styles.handles}>
-              <div
-                style={{
-                  backgroundColor: currentHandle === "tl" ? "var(--grey)" : "",
-                }}
-                className={styles.tl}
-                onMouseDown={() => setCurrentHandle("tl")}
-              ></div>
-              <div
-                className={styles.tc}
-                onMouseDown={() => setCurrentHandle("tc")}
-              ></div>
-              <div
-                className={styles.tr}
-                onMouseDown={() => setCurrentHandle("tr")}
-              ></div>
-              <div
-                className={styles.cl}
-                onMouseDown={() => setCurrentHandle("cl")}
-              ></div>
-              <div
-                className={styles.bl}
-                onMouseDown={() => setCurrentHandle("bl")}
-              ></div>
-              <div
-                className={styles.bc}
-                onMouseDown={() => setCurrentHandle("bc")}
-              ></div>
-              <div
-                className={styles.br}
-                onMouseDown={() => setCurrentHandle("br")}
-              ></div>
-              <div
-                className={styles.cr}
-                onMouseDown={() => setCurrentHandle("cr")}
-              ></div>
+              {handles.map((handle) => (
+                <div
+                  className={styles[handle]}
+                  style={
+                    currentHandle === handle
+                      ? { outline: "3px solid var(--primary)" }
+                      : {}
+                  }
+                  onMouseDown={() => setCurrentHandle(handle)}
+                ></div>
+              ))}
             </div>
             <DeleteSection index={collageIndex} section={section} />
           </>
@@ -308,7 +183,7 @@ const GridSection: React.FC<Props> = ({ section, dragIndex, dragDim }) => {
             )}
           </div>
         )}
-        <div
+        {/* <div
           style={{
             userSelect: "none",
             alignSelf: "center",
@@ -319,9 +194,12 @@ const GridSection: React.FC<Props> = ({ section, dragIndex, dragDim }) => {
             height: "100%",
           }}
         >
-          <h1>{currentHandle}</h1>
+          <h1>Row Start: {section.position.row.start}</h1>
+          <h1>Row End: {section.position.row.end}</h1>
+          <h1>Col Start: {section.position.col.start}</h1>
+          <h1>Col End:{section.position.col.end}</h1>
           <h2>{(selectedSection === section).toString()}</h2>
-        </div>
+        </div> */}
       </section>
     </main>
   );

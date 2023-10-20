@@ -16,7 +16,7 @@ interface Props {
 
 const Text: React.FC<Props> = ({ section }) => {
   const { collageIndex, selectedSection } = useCollage();
-  const { clearSection } = useStore();
+  const { deleteSection: clearSection } = useStore();
   const [textAlign, setTextAlign] = useState<"left" | "right" | "center">(
     "left"
   );

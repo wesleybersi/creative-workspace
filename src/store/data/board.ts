@@ -1,17 +1,18 @@
-import { oneIn } from "../../utils/helper-functions";
 import Section from "./section";
 import Tile from "./tile";
 
-export default class Collage {
-  name = "";
+export default class Board {
+  id: string;
   target = "";
   size: { rows: number; cols: number };
   tiles: Tile[][];
   sections: Section[] = [];
+  name = "";
   description: string[] = [];
-  isFilled = false;
-  isPublished = false;
   constructor(name: string, size: { rows: number; cols: number }) {
+    const timestamp = new Date().getTime();
+    const uniqueId = `${timestamp}-${Math.floor(Math.random() * 1000)}`;
+    this.id = uniqueId;
     this.name = name;
     this.size = size;
     this.tiles = Array.from({ length: size.rows }).map((_, y) =>

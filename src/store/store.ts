@@ -1,31 +1,30 @@
 import { create } from "zustand";
 import Store from "./types";
-import Collage from "./data/collage";
+import Board from "./data/board";
 import Client from "./data/client";
 import Section, { SectionType } from "./data/section";
 import Tile from "./data/tile";
+import { updateSectionInBoard } from "./utilities";
 
 const useStore = create<Store>((set) => ({
   client: new Client("Joanna Lee"),
+  boards: [],
   toolTip: "",
   mode: "Edit",
   isMouseDown: false,
-  newestSection: null,
-  newCollage: () =>
+  newestSectionId: "",
+  newBoard: () =>
     set((state) => {
-      const client = { ...state.client };
-      client.collages.push(
-        new Collage(state.client.name + "'s collage", {
-          rows: 14,
-          cols: 28,
-        })
-      );
+      const board = new Board(state.client.name + "'s collage", {
+        rows: 14,
+        cols: 28,
+      });
       return {
-        client,
+        boards: [...state.boards, board],
       };
     }),
   newSection: (
-    index: number,
+    boardId: string,
     type: SectionType,
     position: {
       row: { start: number; end: number };
@@ -33,9 +32,10 @@ const useStore = create<Store>((set) => ({
     }
   ) =>
     set((state) => {
-      const client = { ...state.client };
-      const collage = { ...client.collages[index] };
-      const tiles = [...collage.tiles];
+      const boards = [...state.boards];
+      const boardIndex = boards.findIndex((b) => b.id === boardId);
+      const board = { ...state.boards[boardIndex] };
+      const tiles = [...board.tiles];
 
       const startRow = Math.min(position.row.start, position.row.end);
       const endRow = Math.max(position.row.start, position.row.end);
@@ -47,7 +47,7 @@ const useStore = create<Store>((set) => ({
         col: { start: startCol + 1, end: endCol + 2 },
       };
       const size = { rows: endRow - startRow + 1, cols: endCol - startCol + 1 };
-      const section = new Section(collage, type, sectionPosition, size);
+      const section = new Section(board.id, type, sectionPosition, size);
 
       for (const row of tiles) {
         for (const tile of row) {
@@ -57,88 +57,89 @@ const useStore = create<Store>((set) => ({
             tile.row >= section.position.row.start &&
             tile.row < section.position.row.end - 1
           ) {
-            if (tile.section && tile.section !== section.id) return {};
             tile.section = section.id;
           }
         }
       }
-      collage.tiles = tiles;
-      collage.sections.push(section);
+      board.tiles = tiles;
+      board.sections.push(section);
 
       if (type === "Note") {
         const noteColors = ["#D9F0FF", "#CDF1CC", "#FFE9D9", "#F6F5BC"];
         section.color =
           noteColors[Math.floor(Math.random() * noteColors.length)];
       }
-      return { client, newestSection: section };
+      return { boards, newestSectionId: section.id };
     }),
-  expandSection: (collageIndex, sectionId, direction, handle) =>
+  expandSection: (boardId, sectionId, direction, handle) =>
     set((state) => {
-      const client = { ...state.client };
-      const collage = { ...client.collages[collageIndex] };
-      const sections = [...collage.sections];
+      const boards = [...state.boards];
+      const boardIndex = boards.findIndex((b) => b.id === boardId);
+      const board = { ...boards[boardIndex] };
+      const sections = [...board.sections];
       const sectionIndex = sections.findIndex((s) => s.id === sectionId);
       if (sectionIndex < 0) return {};
       const section = { ...sections[sectionIndex] };
 
-      const position = section.position;
-      const size = section.size;
+      const row = { ...section.position.row };
+      const col = { ...section.position.col };
+      const size = { ...section.size };
 
       switch (handle) {
         case "tl":
           if (direction === "out") {
-            position.col.start--;
-            position.row.start--;
+            col.start--;
+            row.start--;
             size.rows++;
             size.cols++;
           } else if (direction === "in") {
-            position.col.start++;
-            position.row.start++;
+            col.start++;
+            row.start++;
             size.rows--;
             size.cols--;
           }
           break;
         case "tc":
           if (direction === "out") {
-            position.row.start--;
+            row.start--;
             size.rows++;
           } else if (direction === "in") {
-            position.row.start++;
+            row.start++;
             size.rows--;
           }
           break;
         case "tr":
           console.log("Initial size", size);
           if (direction === "out") {
-            position.row.start--;
-            position.col.end++;
+            row.start--;
+            col.end++;
             size.rows++;
             size.cols++;
           } else if (direction === "in") {
-            position.row.start++;
-            position.col.end--;
+            row.start++;
+            col.end--;
             size.rows--;
             size.cols--;
           }
           break;
         case "cl":
           if (direction === "out") {
-            position.col.start--;
+            col.start--;
             size.cols++;
           } else if (direction === "in") {
-            position.col.start++;
+            col.start++;
             size.cols--;
           }
           break;
         case "bl":
           if (direction === "out") {
-            position.col.start--;
-            position.row.end++;
+            col.start--;
+            row.end++;
             size.rows++;
             size.cols++;
           } else if (direction === "in") {
-            position.col.start++;
-            position.row.end--;
+            col.start++;
+            row.end--;
             size.rows--;
             size.cols--;
           }
@@ -146,21 +147,21 @@ const useStore = create<Store>((set) => ({
         case "bc":
           if (direction === "out") {
             size.rows++;
-            position.row.end++;
+            row.end++;
           } else if (direction === "in") {
             size.rows--;
-            position.row.end--;
+            row.end--;
           }
           break;
         case "br":
           if (direction === "out") {
-            position.row.end++;
-            position.col.end++;
+            row.end++;
+            col.end++;
             size.rows++;
             size.cols++;
           } else if (direction === "in") {
-            position.row.end--;
-            position.col.end--;
+            row.end--;
+            col.end--;
             size.rows--;
             size.cols--;
           }
@@ -168,15 +169,29 @@ const useStore = create<Store>((set) => ({
         case "cr":
           if (direction === "out") {
             size.cols++;
-            position.col.end++;
+            col.end++;
           } else if (direction === "in") {
             size.cols--;
-            position.col.end--;
+            col.end--;
           }
           break;
       }
+      if (size.cols <= 0 || size.rows <= 0) return {};
+      if (row.end <= 0) return {};
+      if (col.end <= 0) return {};
+      if (row.end <= row.start) return {};
+      if (col.end <= col.start) return {};
 
-      const tiles = [...collage.tiles];
+      if (row.start < 0) return {};
+      if (col.start < 0) return {};
+      if (row.end - 1 > board.size.rows) return {};
+      if (col.end - 1 > board.size.cols) return {};
+      if (col.end <= col.start) return {};
+
+      section.position = { row, col };
+      section.size = size;
+
+      const tiles = [...board.tiles];
 
       for (const row of tiles) {
         for (const tile of row) {
@@ -194,18 +209,19 @@ const useStore = create<Store>((set) => ({
           }
         }
       }
-      collage.tiles = tiles;
+      board.tiles = tiles;
 
       sections[sectionIndex] = section;
-      collage.sections = sections;
-      client.collages[collageIndex] = collage;
+      board.sections = sections;
+      boards[boardIndex] = board;
 
-      return { client };
+      return { boards };
     }),
-  expandCollage: (collageIndex: number) =>
+  expandBoard: (boardId: string) =>
     set((state) => {
-      const client = { ...state.client };
-      const expandedCollage = { ...client.collages[collageIndex] };
+      const boards = [...state.boards];
+      const boardIndex = boards.findIndex((b) => b.id === boardId);
+      const expandedCollage = { ...boards[boardIndex] };
       expandedCollage.size.rows++;
 
       const y = expandedCollage.size.rows - 1;
@@ -216,18 +232,19 @@ const useStore = create<Store>((set) => ({
       );
       expandedCollage.tiles.push(extraTiles);
 
-      return { client };
+      return { boards };
     }),
-  clearSection: (collageIndex, sectionId) =>
+  deleteSection: (boardId, sectionId) =>
     set((state) => {
-      const client = { ...state.client };
-      const collage = { ...client.collages[collageIndex] };
-      const sections = [...collage.sections];
+      const boards = [...state.boards];
+      const boardIndex = boards.findIndex((b) => b.id === boardId);
+      const board = { ...boards[boardIndex] };
+      const sections = [...board.sections];
       const sectionIndex = sections.findIndex((s) => s.id === sectionId);
       const section = { ...sections[sectionIndex] };
       if (sectionIndex < 0) return {};
 
-      const tiles = [...collage.tiles];
+      const tiles = [...board.tiles];
 
       for (const row of tiles) {
         for (const tile of row) {
@@ -241,45 +258,25 @@ const useStore = create<Store>((set) => ({
           }
         }
       }
-      collage.tiles = tiles;
-      collage.sections.splice(sectionIndex, 1);
+      board.tiles = tiles;
+      board.sections.splice(sectionIndex, 1);
 
-      return { client };
+      return { boards };
     }),
-  clearAllSections: (collageIndex: number) =>
+
+  updateSection: (
+    boardId: string,
+    sectionId: string,
+    updateCallback: (section: Section) => Section
+  ) =>
     set((state) => {
-      const client = { ...state.client };
-      const collage = client.collages[collageIndex];
-
-      for (const tile of collage.tiles.flat()) {
-        tile.section = "";
-      }
-
-      collage.sections = [];
-
-      return { client };
-    }),
-  setSectionType: (section: Section, type: SectionType) =>
-    set(() => {
-      section.type = type;
-      switch (section.type) {
-        case "Note":
-        case "Image":
-        case "Empty":
-          section.color = "white";
-          break;
-      }
-      return {};
-    }),
-  setSectionImage: (section: Section, file: File | null) =>
-    set(() => {
-      section.image = file;
-      return {};
-    }),
-  setSectionText: (section: Section, text: string[]) =>
-    set(() => {
-      section.text = text;
-      return {};
+      const updatedBoards = updateSectionInBoard(
+        state.boards,
+        boardId,
+        sectionId,
+        updateCallback
+      );
+      return { boards: updatedBoards };
     }),
 
   set,

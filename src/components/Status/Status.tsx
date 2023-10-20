@@ -9,7 +9,7 @@ import UserIcon from "../UserIcon/UserIcon";
 
 const Status = () => {
   const { client } = useStore();
-  const { collages } = client;
+  const { boards: collages } = client;
 
   return (
     <section className={styles.wrapper}>

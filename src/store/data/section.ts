@@ -1,6 +1,5 @@
 import { IconType } from "react-icons";
-import Collage from "./collage";
-import Tile from "./tile";
+import Board from "./board";
 
 import { BsImageAlt as IconImage } from "react-icons/bs";
 import { ImMusic as IconMusic } from "react-icons/im";
@@ -17,9 +16,9 @@ import { ImSortNumericAsc as IconIndexing } from "react-icons/im";
 
 export default class Section {
   id: string;
-  created: { date: Date; by: string } | null = null;
-  lastEdited: { date: Date; by: string } | null = null;
-  collage: Collage;
+  boardId: string;
+  created: { at: number; by: string } | null = null;
+  lastEdited: { at: number; by: string } | null = null;
   type: SectionType = "Empty";
   size: { rows: number; cols: number };
   position: {
@@ -34,7 +33,7 @@ export default class Section {
   depth = 1;
   pages: Section[][] = [[]];
   constructor(
-    collage: Collage,
+    boardId: string,
     type: SectionType,
     position: {
       row: { start: number; end: number };
@@ -45,28 +44,14 @@ export default class Section {
       cols: number;
     }
   ) {
-    this.collage = collage;
-    this.type = type;
-    this.position = position;
-    this.size = size;
     const timestamp = new Date().getTime();
     const uniqueId = `${timestamp}-${Math.floor(Math.random() * 1000)}`;
     this.id = uniqueId;
-
-    // let minRow = tiles[0].row;
-    // let maxRow = tiles[0].row;
-    // let minCol = tiles[0].col;
-    // let maxCol = tiles[0].col;
-
-    // // Find the minimum and maximum row and column values
-    // for (const tile of tiles) {
-    //   minRow = Math.min(minRow, tile.row);
-    //   maxRow = Math.max(maxRow, tile.row);
-    //   minCol = Math.min(minCol, tile.col);
-    //   maxCol = Math.max(maxCol, tile.col);
-    // }
-
-    // this.size = { rows: maxRow - minRow + 1, cols: maxCol - minCol + 1 };
+    this.boardId = boardId;
+    this.type = type;
+    this.position = position;
+    this.size = size;
+    this.created = { at: Date.now(), by: "Wesley" };
   }
 }
 
@@ -97,6 +82,7 @@ export type SectionType =
 export interface SectionTypeData {
   name: SectionType;
   icon: IconType;
+  minSize?: { rows: number; cols: number };
 }
 
 export const sectionTypes: SectionTypeData[] = [
@@ -119,6 +105,7 @@ export const sectionTypes: SectionTypeData[] = [
   {
     name: "Comment",
     icon: IconComment,
+    minSize: { rows: 2, cols: 2 },
   },
   {
     name: "List",

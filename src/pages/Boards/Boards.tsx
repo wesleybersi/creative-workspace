@@ -5,9 +5,7 @@ import Preview from "./components/Preview/Preview";
 import { useState } from "react";
 
 const _Boards = () => {
-  const navigate = useNavigate();
-  const { client, newCollage } = useStore();
-  const { collages } = client;
+  const { boards, newBoard } = useStore();
   const [viewAmount] = useState<number>(4);
 
   return (
@@ -18,10 +16,7 @@ const _Boards = () => {
         </div>
         <div className={styles.new}>
           <button
-            onClick={() => {
-              newCollage();
-              // navigate(`board${collages.length}`);
-            }}
+            onClick={() => newBoard()}
             style={{
               width: "2.5rem",
               height: "2.5rem",
@@ -44,10 +39,8 @@ const _Boards = () => {
         className={styles.collages}
         style={{ gridTemplateColumns: `repeat(${viewAmount},1fr)` }}
       >
-        {collages
-          .map(({ isPublished }, index) => (
-            <Preview index={index} gutter="0.25rem" />
-          ))
+        {boards
+          .map((_, index) => <Preview index={index} gutter="0.25rem" />)
           .reverse()}
       </section>
     </div>
