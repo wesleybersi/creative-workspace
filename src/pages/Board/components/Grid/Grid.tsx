@@ -16,15 +16,8 @@ const Grid: React.FC<Props> = ({ board }) => {
 
   const { newSection, isMouseDown, mode } = useStore();
   const { size } = board;
-  const {
-    set,
-    selection,
-    selectedTiles,
-    expandedSection,
-    selectedType,
-    draggedSection,
-    selectedSection,
-  } = useCollage();
+  const { set, selection, selectedTiles, expandedSection, selectedType } =
+    useCollage();
   const [preview] = useState<boolean>(false);
 
   const [sectionPositions, setSectionPositions] = useState<
@@ -37,53 +30,6 @@ const Grid: React.FC<Props> = ({ board }) => {
     }[]
   >([]);
 
-  const [draggedDim, setDraggedDim] = useState<{
-    width: number;
-    height: number;
-    x: number;
-    y: number;
-    offsetX: number;
-    offsetY: number;
-  } | null>(null);
-
-  useEffect(() => {
-    if (!sectionRef.current) return;
-    if (draggedSection !== null && draggedDim === null) {
-      const children = sectionRef.current.children;
-      const child = children[draggedSection] as HTMLElement;
-      const childRect = child.getBoundingClientRect();
-
-      setDraggedDim({
-        width: child.offsetWidth,
-        height: child.offsetHeight,
-        x: 0,
-        y: 0,
-        offsetX: childRect.left,
-        offsetY: childRect.top,
-      });
-    } else {
-      setDraggedDim(null);
-    }
-  }, [draggedSection, sectionRef]);
-
-  useEffect(() => {
-    function mouseMove(event: MouseEvent) {
-      const x = event.clientX;
-      const y = event.clientY;
-
-      setDraggedDim(
-        (prev) =>
-          prev && {
-            ...prev,
-            x,
-            y,
-          }
-      );
-    }
-
-    if (draggedDim) window.addEventListener("mousemove", mouseMove);
-  }, [draggedDim]);
-
   useEffect(() => {
     if (!isMouseDown && selection && selectedType) {
       newSection(board.id, selectedType, selection);
@@ -92,8 +38,8 @@ const Grid: React.FC<Props> = ({ board }) => {
   }, [isMouseDown]);
 
   useEffect(() => {
-    if (!gridRef.current) return;
     setSectionPositions([]);
+    if (!gridRef.current) return;
     for (const section of board.sections) {
       const firstIndex =
         section.position.row.start * board.size.rows +
@@ -208,21 +154,8 @@ const Grid: React.FC<Props> = ({ board }) => {
             gridTemplateRows: `repeat(${size.rows},1fr)`,
           }}
         >
-          {sectionPositions.map(({ section }, index) => (
-            <GridSection
-              section={section}
-              dragIndex={index}
-              dragDim={
-                index === draggedSection && draggedDim && draggedDim.x > 0
-                  ? {
-                      width: draggedDim.width,
-                      height: draggedDim.height,
-                      x: draggedDim.x - draggedDim.offsetX,
-                      y: draggedDim.y - draggedDim.offsetY,
-                    }
-                  : undefined
-              }
-            />
+          {sectionPositions.map(({ section }) => (
+            <GridSection section={section} gridRef={gridRef.current} />
           ))}
         </section>
       </div>

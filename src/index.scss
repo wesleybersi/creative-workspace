@@ -30,6 +30,10 @@ body {
   --box-shadow: 1px 2px 3px 1px rgba(0, 0, 0, 0.125);
 }
 
+.grab {
+  cursor: grabbing !important;
+}
+
 ul {
   list-style-type: none;
 }

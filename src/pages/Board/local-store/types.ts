@@ -13,7 +13,6 @@ interface Store {
   selectedTiles: Tile[];
   selectedSection: Section | null;
   expandedSection: Section | null;
-  draggedSection: number | null;
   isOnBoard: boolean;
 
   set: (

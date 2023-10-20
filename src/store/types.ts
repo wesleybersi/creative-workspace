@@ -6,6 +6,7 @@ interface Store {
   client: Client;
   boards: Board[];
   toolTip: string;
+  cursor: string;
   mode: "Interact" | "Edit";
   isMouseDown: boolean;
   newestSectionId: string | null;
@@ -29,6 +30,11 @@ interface Store {
     sectionId: string,
     direction: "in" | "out",
     handle: "tl" | "tr" | "tc" | "bc" | "bl" | "br" | "cl" | "cr"
+  ) => void;
+  setNewSectionPosition: (
+    boardId: string,
+    sectionId: string,
+    target: { row: number; col: number }
   ) => void;
   updateSection: (
     boardId: string,

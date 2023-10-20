@@ -2,6 +2,7 @@ import useCollage from "../../local-store/useCollage";
 import styles from "./toolbar.module.scss";
 
 import { sectionTypes } from "../../../../store/data/section";
+import { useEffect } from "react";
 const SectionInfo = () => {
   const { set, selectedType } = useCollage();
 
@@ -26,10 +27,11 @@ const SectionInfo = () => {
                     set((state) => {
                       {
                         if (state.selectedType === name) {
-                          return { selectedType: null };
+                          return { selectedType: null, selectedSection: null };
                         } else
                           return {
                             selectedType: name,
+                            selectedSection: null,
                           };
                       }
                     });

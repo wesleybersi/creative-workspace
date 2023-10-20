@@ -10,6 +10,7 @@ const useStore = create<Store>((set) => ({
   client: new Client("Joanna Lee"),
   boards: [],
   toolTip: "",
+  cursor: "",
   mode: "Edit",
   isMouseDown: false,
   newestSectionId: "",
@@ -84,6 +85,7 @@ const useStore = create<Store>((set) => ({
       const row = { ...section.position.row };
       const col = { ...section.position.col };
       const size = { ...section.size };
+      let cursor = "";
 
       switch (handle) {
         case "tl":
@@ -98,6 +100,7 @@ const useStore = create<Store>((set) => ({
             size.rows--;
             size.cols--;
           }
+          cursor = "nw-resize";
           break;
         case "tc":
           if (direction === "out") {
@@ -264,6 +267,37 @@ const useStore = create<Store>((set) => ({
       return { boards };
     }),
 
+  setNewSectionPosition: (
+    boardId: string,
+    sectionId: string,
+    target: { row: number; col: number }
+  ) => {
+    set((state) => {
+      const updatedBoards = updateSectionInBoard(
+        state.boards,
+        boardId,
+        sectionId,
+        (section) => {
+          const position = {
+            row: { ...section.position.row },
+            col: { ...section.position.col },
+          };
+
+          const rowDiff = position.row.start - target.row;
+          const colDiff = position.col.start - target.col;
+
+          position.row.start = position.row.start - rowDiff;
+          position.col.start = position.col.start - colDiff;
+          position.row.end = position.row.end - rowDiff;
+          position.col.end = position.col.end - colDiff;
+
+          section.position = { ...position };
+          return section;
+        }
+      );
+      return { boards: updatedBoards };
+    });
+  },
   updateSection: (
     boardId: string,
     sectionId: string,

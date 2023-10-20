@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import Section from "../../../../../../store/data/section";
 import styles from "./section.module.scss";
 import useCollage from "../../../../local-store/useCollage";
@@ -19,15 +19,13 @@ import useHandles from "./hooks/useHandles";
 
 interface Props {
   section: Section;
-  dragIndex: number;
-  dragDim?: { width: number; height: number; x: number; y: number };
+  gridRef: HTMLDivElement | null;
 }
 
-const GridSection: React.FC<Props> = ({ section, dragIndex, dragDim }) => {
-  const { set, selectedSection, collageIndex, draggedSection } = useCollage();
-  const { newestSectionId, isMouseDown: isMouseDownGlobal } = useStore();
-  const [isMouseDown, setIsMouseDown] = useState<boolean>(false);
-
+const GridSection: React.FC<Props> = ({ section, gridRef }) => {
+  const { set, selectedSection, collageIndex } = useCollage();
+  const isSelected = selectedSection?.id === section.id;
+  const { set: globalSet, isMouseDown, setNewSectionPosition } = useStore();
   const sectionRef = useRef<HTMLDivElement | null>(null);
   const [handles, currentHandle, setCurrentHandle] = useHandles(
     section,
@@ -35,62 +33,110 @@ const GridSection: React.FC<Props> = ({ section, dragIndex, dragDim }) => {
   );
 
   const [selectedPage, setSelectedPage] = useState<number>(0);
+
   const [dragTimer, setDragTimer] = useState<number>(0);
   const [dragEvent, setDragEvent] = useState<React.MouseEvent<
     HTMLElement,
     MouseEvent
   > | null>(null);
-
-  const isSelected = selectedSection?.id === section.id;
-  const [mouseOffset, setMouseOffset] = useState<{ x: number; y: number }>({
-    x: 0,
-    y: 0,
-  });
-
-  useEffect(() => {
-    if (!isMouseDownGlobal) {
-      setIsMouseDown(false);
-      setCurrentHandle("");
-    }
-  }, [isMouseDownGlobal]);
+  const [dragDim, setDragDim] = useState<{
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+    offset: { x: number; y: number };
+  } | null>(null);
 
   useEffect(() => {
     if (isMouseDown) {
+      if (!dragEvent || currentHandle) return;
       if (dragTimer < 5) {
         setTimeout(() => setDragTimer((prev) => prev + 1), 10);
       } else if (dragTimer >= 5) {
         setDragTimer(0);
-        set({ draggedSection: dragIndex });
-        if (dragEvent) {
-          const rect = dragEvent.currentTarget.getBoundingClientRect();
-          setMouseOffset({
-            x: dragEvent.clientX - rect.left,
-            y: dragEvent.clientY - rect.top,
-          });
-        }
-        setIsMouseDown(false);
 
+        if (!sectionRef.current) return;
+        const rect = dragEvent.currentTarget.getBoundingClientRect();
+        const sectionOffset = { x: rect.left, y: rect.top };
+        const pointerOffset = {
+          x: dragEvent.clientX - rect.left,
+          y: dragEvent.clientY - rect.top,
+        };
+        setDragDim({
+          width: sectionRef.current.offsetWidth,
+          height: sectionRef.current.offsetHeight,
+          x: 0,
+          y: 0,
+          offset: {
+            x: sectionOffset.x + pointerOffset.x,
+            y: sectionOffset.y + pointerOffset.y,
+          },
+        });
         setDragEvent(null);
+        globalSet({ cursor: "grab" });
       }
     } else {
-      setIsMouseDown(false);
+      const calculateDropTarget = () => {
+        if (!gridRef || !sectionRef.current) return;
+
+        const sectionRect = sectionRef.current.getBoundingClientRect();
+        const x = sectionRect.left;
+        const y = sectionRect.top;
+        // Get the dimensions and position of a single grid cell
+        const cellRect = (
+          gridRef.firstChild as HTMLElement
+        )?.getBoundingClientRect();
+        const cellWidth = cellRect.width;
+        const cellHeight = cellRect.height;
+
+        // Calculate the row and column based on mouse position
+        const row = Math.floor((y - gridRef.offsetTop) / cellHeight);
+        const col = Math.floor((x - gridRef.offsetLeft) / cellWidth);
+
+        setNewSectionPosition(section.boardId, section.id, {
+          row: row,
+          col: col - 1,
+        });
+      };
+      if (dragDim) calculateDropTarget();
+      setCurrentHandle("");
       setDragTimer(0);
       setDragEvent(null);
+      setDragDim(null);
+      globalSet({ cursor: "" });
     }
-  }, [dragTimer, isMouseDown, dragEvent]);
+  }, [dragTimer, isMouseDown, dragEvent, currentHandle]);
+
+  useEffect(() => {
+    function mousemove(event: MouseEvent) {
+      if (!dragDim) return;
+      const x = event.clientX - dragDim.offset.x;
+      const y = event.clientY - dragDim.offset.y;
+
+      setDragDim(
+        (prev) =>
+          prev && {
+            ...prev,
+            x,
+            y,
+          }
+      );
+    }
+
+    window.addEventListener("mousemove", mousemove);
+    return () => window.removeEventListener("mousemove", mousemove);
+  }, [dragDim]);
 
   return (
     <main
       className={styles.wrapper}
       ref={sectionRef}
       style={{
-        // scale: dragDim ? "1.05" : "1",
-
         userSelect: dragDim ? "none" : "all",
         pointerEvents: currentHandle || dragDim ? "none" : "all",
         position: dragDim ? "absolute" : "relative",
-        top: dragDim ? dragDim.y - mouseOffset.y : "",
-        left: dragDim ? dragDim.x - mouseOffset.x : "",
+        top: dragDim ? dragDim.y : "",
+        left: dragDim ? dragDim.x : "",
         width: dragDim ? dragDim.width : "",
         height: dragDim ? dragDim.height : "",
         gridColumnStart: section.position.col.start,
@@ -101,20 +147,11 @@ const GridSection: React.FC<Props> = ({ section, dragIndex, dragDim }) => {
         zIndex: isSelected || dragDim ? 100 : 1,
       }}
       onMouseDown={(event) => {
-        if (currentHandle) return;
-        // if (draggedSection !== dragIndex) {
-        //   if (dragTimer === 0) {
-        //     setDragEvent({ ...event });
-        //     setIsMouseDown(true);
-        //     return;
-        //   }
-        // }
-      }}
-      onMouseEnter={() => {
-        // set({ selectedSection: section });
-      }}
-      onMouseLeave={() => {
-        // set({ selectedSection: null });
+        if (currentHandle || dragDim) return;
+        if (dragTimer === 0) {
+          setDragEvent({ ...event });
+          return;
+        }
       }}
       onClick={() => {
         set({ selectedSection: section });
@@ -166,23 +203,6 @@ const GridSection: React.FC<Props> = ({ section, dragIndex, dragDim }) => {
           <IconHandle size="24px" />
         </div>
 
-        {section.type === "Story" && (
-          <div className={styles.pages}>
-            {section.pages.length > 1 ? (
-              section.pages.map((_, index) => (
-                <button
-                  onClick={() => setSelectedPage(index)}
-                  style={{
-                    backgroundColor:
-                      selectedPage === index ? "var(--primary)" : "",
-                  }}
-                ></button>
-              ))
-            ) : (
-              <></>
-            )}
-          </div>
-        )}
         {/* <div
           style={{
             userSelect: "none",
@@ -194,11 +214,12 @@ const GridSection: React.FC<Props> = ({ section, dragIndex, dragDim }) => {
             height: "100%",
           }}
         >
-          <h1>Row Start: {section.position.row.start}</h1>
-          <h1>Row End: {section.position.row.end}</h1>
-          <h1>Col Start: {section.position.col.start}</h1>
-          <h1>Col End:{section.position.col.end}</h1>
-          <h2>{(selectedSection === section).toString()}</h2>
+          {isDraggable && <p>Draggable</p>}
+          {dragDim && (
+            <p>
+              {dragDim.x} - {dragDim.y}
+            </p>
+          )}
         </div> */}
       </section>
     </main>

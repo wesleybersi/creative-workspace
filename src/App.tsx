@@ -13,7 +13,7 @@ import _Board from "./pages/Board/Board";
 
 function App() {
   const navigate = useNavigate();
-  const { boards, set, mode } = useStore();
+  const { boards, set, mode, cursor } = useStore();
 
   const routes = [
     {
@@ -33,7 +33,7 @@ function App() {
 
   return (
     <div
-      className={styles.App}
+      className={`${styles.App} ${cursor === "grab" && styles.grab}`}
       onMouseDown={() => set({ isMouseDown: true })}
       onMouseUp={() => set({ isMouseDown: false })}
     >

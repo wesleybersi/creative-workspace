@@ -7,7 +7,6 @@ const useCollage = create<Store>((set) => ({
   selectedTiles: [],
   selectedSection: null,
   expandedSection: null,
-  draggedSection: null,
   selection: null,
   isOnBoard: false,
 

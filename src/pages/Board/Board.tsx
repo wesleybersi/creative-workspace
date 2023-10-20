@@ -8,7 +8,7 @@ import { useEffect } from "react";
 import styles from "./board.module.scss";
 
 const _Board = ({ index }: { index: number }) => {
-  const { set, selection, selectedSection, draggedSection } = useCollage();
+  const { set, selection, selectedSection } = useCollage();
   const { mode, boards, deleteSection: clearSection, isMouseDown } = useStore();
   useSelection(selection, boards[index]);
   const board = boards[index];
@@ -29,18 +29,6 @@ const _Board = ({ index }: { index: number }) => {
 
     return () => window.removeEventListener("keydown", keydown);
   }, [selectedSection]);
-
-  useEffect(() => {
-    if (!isMouseDown) {
-      set({ draggedSection: null });
-    }
-  }, [isMouseDown]);
-
-  useEffect(() => {
-    if (draggedSection !== null) {
-      set({ selectedSection: null });
-    }
-  }, [draggedSection]);
 
   return (
     <main className={styles.wrapper}>
