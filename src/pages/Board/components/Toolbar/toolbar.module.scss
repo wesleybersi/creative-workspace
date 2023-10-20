@@ -1,0 +1,104 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--padding));
+  border-radius: 1rem;
+  position: fixed;
+  top: 50%;
+  transform: translateY(-50%);
+  left: 1rem;
+  width: 4rem;
+  z-index: 500;
+
+  .description {
+    .combiner {
+      display: flex;
+      flex-direction: column;
+      gap: calc(var(--padding) / 2);
+    }
+  }
+  section {
+    display: flex;
+    flex-direction: column;
+    gap: var(--padding);
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(1, 1fr);
+      grid-gap: 0.5rem;
+
+      button {
+        all: unset;
+        cursor: pointer;
+        border-radius: 0.15rem;
+
+        // width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 0 0.5rem;
+
+        // border: 2px solid var(--grey);
+        min-height: 2.5rem;
+        color: #555;
+        // padding: var(--padding);
+        box-shadow: var(--box-shadow);
+        background: white;
+        svg {
+          // flex: 1;
+        }
+        p {
+          font-size: 0.85rem;
+          flex: 1;
+        }
+      }
+    }
+
+    input,
+    textarea {
+      padding: 0.5rem;
+      font-size: 1rem;
+      border-radius: 0.5rem;
+      background: var(--lightgrey);
+      border: none;
+    }
+    textarea {
+      min-height: 100px;
+      resize: none;
+      max-height: 100px;
+    }
+    label {
+      font-size: 1rem;
+      font-weight: 500;
+    }
+
+    .drop {
+      display: flex;
+      flex-direction: column;
+      gap: var(--padding);
+
+      // align-items: center;
+      // justify-content: center;
+      // text-align: center;
+      width: 100%;
+      // border: 4px dashed #d5e2f0;
+
+      border-radius: 0.75rem;
+      input {
+        display: none;
+      }
+      //   background-color: var(--lightgrey);
+
+      span {
+        border-radius: 50%;
+        // background-color: var(--primary);
+        display: grid;
+        place-content: center;
+        width: 3.5rem;
+        height: 3.5rem;
+        color: #d5e2f0;
+        font-weight: 800;
+      }
+    }
+  }
+}

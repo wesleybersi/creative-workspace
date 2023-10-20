@@ -8,6 +8,7 @@ import Tile from "./data/tile";
 const useStore = create<Store>((set) => ({
   client: new Client("Joanna Lee"),
   toolTip: "",
+  mode: "Edit",
   isMouseDown: false,
   newestSection: null,
   newCollage: () =>
@@ -15,8 +16,8 @@ const useStore = create<Store>((set) => ({
       const client = { ...state.client };
       client.collages.push(
         new Collage(state.client.name + "'s collage", {
-          rows: 32,
-          cols: 12,
+          rows: 14,
+          cols: 28,
         })
       );
       return {
@@ -25,7 +26,6 @@ const useStore = create<Store>((set) => ({
     }),
   newSection: (
     index: number,
-    tiles: Tile[],
     type: SectionType,
     position: {
       row: { start: number; end: number };
@@ -33,14 +33,9 @@ const useStore = create<Store>((set) => ({
     }
   ) =>
     set((state) => {
-      const obstructed = tiles.some((tile) => tile.section);
-      if (obstructed) {
-        console.warn("Section is overlapping");
-        return {};
-      }
-
       const client = { ...state.client };
-      const collage = client.collages[index];
+      const collage = { ...client.collages[index] };
+      const tiles = [...collage.tiles];
 
       const startRow = Math.min(position.row.start, position.row.end);
       const endRow = Math.max(position.row.start, position.row.end);
@@ -51,21 +46,161 @@ const useStore = create<Store>((set) => ({
         row: { start: startRow + 1, end: endRow + 2 },
         col: { start: startCol + 1, end: endCol + 2 },
       };
+      const size = { rows: endRow - startRow + 1, cols: endCol - startCol + 1 };
+      const section = new Section(collage, type, sectionPosition, size);
 
-      const section = new Section(collage, tiles, type, sectionPosition);
+      for (const row of tiles) {
+        for (const tile of row) {
+          if (
+            tile.col >= section.position.col.start &&
+            tile.col < section.position.col.end - 1 &&
+            tile.row >= section.position.row.start &&
+            tile.row < section.position.row.end - 1
+          ) {
+            if (tile.section && tile.section !== section.id) return {};
+            tile.section = section.id;
+          }
+        }
+      }
+      collage.tiles = tiles;
       collage.sections.push(section);
 
-      for (const tile of tiles) {
-        tile.section = section;
-      }
-      console.log("New section:", section);
-      console.log("collage", collage);
-
       if (type === "Note") {
-        // section.color = "#f6f5bc";
-        section.randomNoteColor();
+        const noteColors = ["#D9F0FF", "#CDF1CC", "#FFE9D9", "#F6F5BC"];
+        section.color =
+          noteColors[Math.floor(Math.random() * noteColors.length)];
       }
       return { client, newestSection: section };
+    }),
+  expandSection: (collageIndex, sectionId, direction, handle) =>
+    set((state) => {
+      const client = { ...state.client };
+      const collage = { ...client.collages[collageIndex] };
+      const sections = [...collage.sections];
+      const sectionIndex = sections.findIndex((s) => s.id === sectionId);
+      if (sectionIndex < 0) return {};
+      const section = { ...sections[sectionIndex] };
+
+      const position = section.position;
+      const size = section.size;
+
+      switch (handle) {
+        case "tl":
+          if (direction === "out") {
+            position.col.start--;
+            position.row.start--;
+            size.rows++;
+            size.cols++;
+          } else if (direction === "in") {
+            position.col.start++;
+            position.row.start++;
+            size.rows--;
+            size.cols--;
+          }
+          break;
+        case "tc":
+          if (direction === "out") {
+            position.row.start--;
+            size.rows++;
+          } else if (direction === "in") {
+            position.row.start++;
+            size.rows--;
+          }
+          break;
+        case "tr":
+          console.log("Initial size", size);
+          if (direction === "out") {
+            position.row.start--;
+            position.col.end++;
+            size.rows++;
+            size.cols++;
+          } else if (direction === "in") {
+            position.row.start++;
+            position.col.end--;
+            size.rows--;
+            size.cols--;
+          }
+          break;
+        case "cl":
+          if (direction === "out") {
+            position.col.start--;
+            size.cols++;
+          } else if (direction === "in") {
+            position.col.start++;
+            size.cols--;
+          }
+          break;
+        case "bl":
+          if (direction === "out") {
+            position.col.start--;
+            position.row.end++;
+            size.rows++;
+            size.cols++;
+          } else if (direction === "in") {
+            position.col.start++;
+            position.row.end--;
+            size.rows--;
+            size.cols--;
+          }
+          break;
+        case "bc":
+          if (direction === "out") {
+            size.rows++;
+            position.row.end++;
+          } else if (direction === "in") {
+            size.rows--;
+            position.row.end--;
+          }
+          break;
+        case "br":
+          if (direction === "out") {
+            position.row.end++;
+            position.col.end++;
+            size.rows++;
+            size.cols++;
+          } else if (direction === "in") {
+            position.row.end--;
+            position.col.end--;
+            size.rows--;
+            size.cols--;
+          }
+          break;
+        case "cr":
+          if (direction === "out") {
+            size.cols++;
+            position.col.end++;
+          } else if (direction === "in") {
+            size.cols--;
+            position.col.end--;
+          }
+          break;
+      }
+
+      const tiles = [...collage.tiles];
+
+      for (const row of tiles) {
+        for (const tile of row) {
+          if (
+            tile.col >= section.position.col.start &&
+            tile.col < section.position.col.end - 1 &&
+            tile.row >= section.position.row.start &&
+            tile.row < section.position.row.end - 1
+          ) {
+            tile.section = section.id;
+          } else {
+            if (tile.section === section.id) {
+              tile.section = "";
+            }
+          }
+        }
+      }
+      collage.tiles = tiles;
+
+      sections[sectionIndex] = section;
+      collage.sections = sections;
+      client.collages[collageIndex] = collage;
+
+      return { client };
     }),
   expandCollage: (collageIndex: number) =>
     set((state) => {
@@ -83,18 +218,31 @@ const useStore = create<Store>((set) => ({
 
       return { client };
     }),
-  clearSection: (collageIndex: number, section: Section) =>
+  clearSection: (collageIndex, sectionId) =>
     set((state) => {
       const client = { ...state.client };
-      const collage = client.collages[collageIndex];
+      const collage = { ...client.collages[collageIndex] };
+      const sections = [...collage.sections];
+      const sectionIndex = sections.findIndex((s) => s.id === sectionId);
+      const section = { ...sections[sectionIndex] };
+      if (sectionIndex < 0) return {};
 
-      const sectionIndex = collage.sections.indexOf(section);
+      const tiles = [...collage.tiles];
 
-      collage.sections.splice(sectionIndex, 1);
-      for (const tile of section.tiles) {
-        tile.section = null;
+      for (const row of tiles) {
+        for (const tile of row) {
+          if (
+            tile.col >= section.position.col.start &&
+            tile.col < section.position.col.end - 1 &&
+            tile.row >= section.position.row.start &&
+            tile.row < section.position.row.end - 1
+          ) {
+            tile.section = "";
+          }
+        }
       }
-      section.tiles = [];
+      collage.tiles = tiles;
+      collage.sections.splice(sectionIndex, 1);
 
       return { client };
     }),
@@ -104,11 +252,9 @@ const useStore = create<Store>((set) => ({
       const collage = client.collages[collageIndex];
 
       for (const tile of collage.tiles.flat()) {
-        tile.section = null;
+        tile.section = "";
       }
-      for (const section of collage.sections) {
-        section.tiles = [];
-      }
+
       collage.sections = [];
 
       return { client };

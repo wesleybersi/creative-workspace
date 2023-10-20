@@ -5,24 +5,29 @@
 }
 
 html {
-  overflow-x: hidden;
+  overflow: hidden;
 }
 
 body {
   font-family: "Poppins", Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
-  background-color: #e8ebf4;
+
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   -webkit-text-size-adjust: 100%;
   --padding: 1rem;
+  --inner-pad: 1.5rem;
+  --halfPad: 0.75rem;
+
   --lightgrey: #e3e9ec;
-  --grey: #bac7cd;
+  --grey: #acbbc2;
   --primary: #2162a6;
   --primary: #45b4f9;
+  --lightblue: #f1f8ff;
+  --box-shadow: 1px 2px 3px 1px rgba(0, 0, 0, 0.125);
 }
 
 ul {
@@ -32,7 +37,7 @@ ul {
 p,
 li,
 a {
-  font-size: 1.1rem;
+  font-size: 1rem;
   font-weight: 500;
   opacity: 0.85;
 }

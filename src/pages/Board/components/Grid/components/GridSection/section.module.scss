@@ -1,0 +1,124 @@
+.wrapper {
+  pointer-events: all;
+  display: flex;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 250ms ease;
+  position: relative;
+  padding: 0.4rem;
+  .mainOffset {
+    box-shadow: 1px 2px 3px 1px rgba(0, 0, 0, 0.125);
+    position: relative;
+    border-radius: 0.2rem;
+    width: 100%;
+    height: 100%;
+    .pages {
+      position: absolute;
+      bottom: calc(var(--padding) * 0.8);
+      right: calc(var(--padding) * 0.8);
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.75rem;
+      align-items: center;
+      button {
+        all: unset;
+        width: 0.75rem;
+        height: 0.75rem;
+        aspect-ratio: 1;
+
+        border: 2px solid var(--primary);
+        box-sizing: border-box;
+        border-radius: 50%;
+      }
+    }
+    .handle {
+      position: absolute;
+      top: calc(var(--padding) * 0.25);
+      right: calc(var(--padding) * 0.25);
+      opacity: 0;
+    }
+    .topRight {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: flex-start;
+      justify-content: flex-end;
+      padding: calc(var(--padding) * 0.8);
+      button {
+        all: unset;
+        pointer-events: all;
+        cursor: pointer;
+      }
+      .delete {
+        opacity: 0;
+      }
+      &:hover {
+        .delete {
+          opacity: 1;
+        }
+      }
+    }
+  }
+  .handles {
+    position: absolute;
+    width: calc(100% + 4px);
+    height: calc(100% + 4px);
+    top: -2px;
+    left: -2px;
+
+    pointer-events: none;
+    --size: 12px;
+    --half-size: 6px;
+
+    * {
+      pointer-events: all;
+      width: var(--size);
+      height: var(--size);
+      aspect-ratio: 1;
+      background: var(--primary);
+      border-radius: 50%;
+      position: absolute;
+      z-index: 200;
+    }
+    .tl {
+      top: calc(var(--half-size) * -1);
+      left: calc(var(--half-size) * -1);
+    }
+    .tc {
+      top: calc(var(--half-size) * -1);
+      left: 50%;
+      transform: translateX(-50%);
+    }
+    .tr {
+      top: calc(var(--half-size) * -1);
+      right: calc(var(--half-size) * -1);
+    }
+    .cl {
+      top: 50%;
+      left: calc(var(--half-size) * -1);
+      transform: translateY(-50%);
+    }
+    .bl {
+      bottom: calc(var(--half-size) * -1);
+      left: calc(var(--half-size) * -1);
+    }
+    .bc {
+      bottom: calc(var(--half-size) * -1);
+      left: 50%;
+      transform: translateX(-50%);
+    }
+    .br {
+      bottom: calc(var(--half-size) * -1);
+      right: calc(var(--half-size) * -1);
+    }
+    .cr {
+      top: 50%;
+      right: calc(var(--half-size) * -1);
+      transform: translateY(-50%);
+    }
+  }
+}

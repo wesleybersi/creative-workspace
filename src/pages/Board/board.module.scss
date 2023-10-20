@@ -1,0 +1,10 @@
+@import "../../styles/mixins.scss";
+
+.wrapper {
+  @include section-width;
+  width: 100%;
+  height: 100%;
+  background-color: #e8ebf4;
+  padding-left: 9rem;
+  padding-top: 4rem;
+}
