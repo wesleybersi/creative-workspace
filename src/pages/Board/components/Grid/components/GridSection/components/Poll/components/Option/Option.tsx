@@ -1,6 +1,7 @@
 import { useState } from "react";
 import Section from "../../../../../../../../../../store/data/section";
 import styles from "./option.module.scss";
+import useStore from "../../../../../../../../../../store/store";
 
 interface Props {
   section: Section;
@@ -19,6 +20,7 @@ const Option: React.FC<Props> = ({
   showResult,
   setShowResult,
 }) => {
+  const { mode } = useStore();
   const [text, setText] = useState<string>("");
 
   return (
@@ -44,7 +46,7 @@ const Option: React.FC<Props> = ({
             type="text"
             onChange={(event) => setText(event?.target.value)}
             value={text}
-            placeholder={`Option ${index}`}
+            placeholder={mode === "Edit" ? `Option ${index}` : ""}
           />
         )}
         {showResult ? <div></div> : <div></div>}

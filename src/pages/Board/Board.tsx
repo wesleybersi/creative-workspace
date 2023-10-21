@@ -1,6 +1,6 @@
 import useStore from "../../store/store";
 import Grid from "./components/Grid/Grid";
-import useCollage from "./local-store/useCollage";
+
 import useSelection from "./hooks/useSelection";
 import Toolbar from "./components/Toolbar/Toolbar";
 import { useEffect } from "react";
@@ -8,8 +8,15 @@ import { useEffect } from "react";
 import styles from "./board.module.scss";
 
 const _Board = ({ index }: { index: number }) => {
-  const { set, selection, selectedSection } = useCollage();
-  const { mode, boards, deleteSection: clearSection, isMouseDown } = useStore();
+  const {
+    set,
+    mode,
+    boards,
+    deleteSection,
+    selection,
+    selectedSection,
+    isEditingSection,
+  } = useStore();
   useSelection(selection, boards[index]);
   const board = boards[index];
 
@@ -19,19 +26,34 @@ const _Board = ({ index }: { index: number }) => {
     }
 
     function keydown(event: KeyboardEvent) {
-      if (event.key === "[") {
-        set({ selectedSection: null });
-      } else if (event.key === "]") {
-        if (selectedSection) clearSection(board.id, selectedSection.id);
+      switch (event.key) {
+        case "Delete":
+        case "Backspace":
+          if (selectedSection && !isEditingSection) {
+            deleteSection(board.id, selectedSection.id);
+          }
+          break;
       }
     }
     window.addEventListener("keydown", keydown);
 
     return () => window.removeEventListener("keydown", keydown);
-  }, [selectedSection]);
+  }, [selectedSection, isEditingSection]);
+
+  useEffect(() => {
+    if (mode === "Interact") {
+      set({ selectedSection: null });
+    }
+  }, [mode]);
 
   return (
     <main className={styles.wrapper}>
+      {
+        <div
+          className={styles.overlay}
+          style={{ opacity: isEditingSection ? 1 : 0 }}
+        ></div>
+      }
       {mode === "Edit" && <Toolbar />}
       <Grid board={board} />
     </main>

@@ -1,0 +1,39 @@
+.wrapper {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  // padding: calc(var(--padding) * 0.8) calc(var(--padding) * 0.8);
+  .grid {
+    display: grid;
+    border-radius: 0.15rem;
+    overflow: hidden;
+
+    height: 100%;
+    position: relative;
+    // grid-gap: calc(var(--padding) * 0.8);
+    .icon {
+      padding: var(--half-pad);
+      span {
+        border-radius: 50%;
+        background: var(--primary);
+        width: 100%;
+        height: 100%;
+        display: block;
+        aspect-ratio: 1;
+      }
+    }
+    .author {
+      display: flex;
+      align-items: center;
+      font-size: calc(var(--font-size) * 1.5);
+      font-weight: 600;
+    }
+    .content {
+      padding-right: var(--semi-pad);
+      padding-bottom: var(--semi-pad);
+      font-size: var(--font-size);
+    }
+  }
+}

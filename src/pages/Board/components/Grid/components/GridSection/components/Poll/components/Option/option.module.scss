@@ -41,7 +41,7 @@
     .text {
       border: none;
       outline: none;
-      font-size: 1.1rem;
+      font-size: var(--font-size);
       user-select: none;
       background: none;
 

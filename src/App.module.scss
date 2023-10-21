@@ -12,6 +12,7 @@
     background: white;
     box-shadow: var(--box-shadow);
     display: flex;
+    z-index: 5000;
     section {
       height: 100%;
       display: flex;
@@ -22,7 +23,11 @@
       &:nth-of-type(1) {
       }
       &:nth-of-type(2) {
-        display: none;
+        // display: none;
+        text-align: center;
+
+        justify-content: center;
+        opacity: 0;
       }
       &:nth-of-type(3) {
         justify-content: flex-end;

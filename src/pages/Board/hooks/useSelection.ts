@@ -1,13 +1,14 @@
 import { useEffect } from "react";
-import { Selection } from "../local-store/types";
+
 import Board from "../../../store/data/board";
-import useCollage from "../local-store/useCollage";
+import useStore from "../../../store/store";
+import { Selection } from "../../../store/types";
 
 export default function useSelection(
   selection: Selection | null,
-  collage: Board
+  board: Board
 ) {
-  const { set } = useCollage();
+  const { set } = useStore();
 
   useEffect(() => {
     if (selection === null) {
@@ -26,10 +27,10 @@ export default function useSelection(
       }
       const selectedTiles = [];
       for (const vector of selectedTilesArray) {
-        selectedTiles.push(collage.tiles[vector.row][vector.col]);
+        selectedTiles.push(board.tiles[vector.row][vector.col]);
       }
 
       set({ selectedTiles });
     }
-  }, [set, selection, collage.tiles]);
+  }, [set, selection, board.tiles]);
 }

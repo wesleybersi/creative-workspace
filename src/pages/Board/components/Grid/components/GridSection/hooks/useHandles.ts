@@ -17,12 +17,6 @@ function useHandles(
     window?.getSelection()?.removeAllRanges();
     function mousemove(event: MouseEvent) {
       if (!currentHandle || !ref) return;
-      console.log(
-        "Trying",
-        currentHandle,
-        section.position.col.start,
-        section.position.row.start
-      );
       const x = event.clientX;
       const y = event.clientY;
       const rect = ref?.getBoundingClientRect();
@@ -44,7 +38,6 @@ function useHandles(
                 direction = "in";
               } else if (isLeft) {
                 direction = "out";
-                handle = "cl";
               } else {
                 direction = "out";
                 handle = "tc";
@@ -52,7 +45,6 @@ function useHandles(
             } else if (isDown) {
               if (isRight) {
                 direction = "in";
-                handle = "cl";
               } else if (isLeft) {
                 direction = "out";
               } else {
@@ -77,7 +69,6 @@ function useHandles(
                 direction = "out";
               } else if (isLeft) {
                 direction = "in";
-                handle = "cr";
               } else {
                 direction = "out";
                 handle = "tc";
@@ -168,7 +159,6 @@ function useHandles(
                 direction = "out";
               } else if (isLeft) {
                 direction = "in";
-                handle = "cr";
               } else {
                 direction = "in";
                 handle = "bc";
@@ -176,7 +166,6 @@ function useHandles(
             } else if (isDown) {
               if (isRight) {
                 direction = "out";
-                handle = "cr";
               } else if (isLeft) {
                 direction = "in";
               } else {

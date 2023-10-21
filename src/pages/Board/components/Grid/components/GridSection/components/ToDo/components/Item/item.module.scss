@@ -20,11 +20,12 @@
 
   // padding: calc(var(--padding) * 0.8) calc(var(--padding) * 0.8);
   .todo {
-    padding: 0 calc(var(--padding) * 1.6);
     border-radius: 0.25rem;
     user-select: none;
     display: flex;
     justify-content: space-between;
+    gap: var(--pad);
+    padding-right: var(--pad);
     height: 100%;
 
     align-items: center;
@@ -42,28 +43,45 @@
       opacity: 0;
       display: none;
     }
-    .text {
-      // padding: 0 calc(var(--padding) * 0.8);
-      border: none;
-      min-width: 0;
-      outline: none;
-      font-size: 1.1rem;
-      user-select: none;
-      background: none;
-      font-weight: 500;
-      font-family: "Poppins";
-    }
+    .textWrap {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      height: 100%;
+      padding-left: var(--pad);
+      padding-right: var(--pad);
+      justify-content: center;
+      gap: var(--half-pad);
+      overflow: hidden;
+      .text {
+        // padding: 0 calc(var(--padding) * 0.8);
+        border: none;
+        min-width: 0;
+        outline: none;
 
+        user-select: none;
+        background: none;
+        font-weight: 500;
+        font-family: "Poppins";
+        font-size: var(--font-size);
+        &::placeholder {
+          opacity: 0.5;
+          font-weight: 400;
+        }
+      }
+    }
     input[type="checkbox"] {
-      width: 1.25rem;
-      height: 1.25rem;
+      width: 1.15rem;
+      height: 1.15rem;
       color: #444;
       border: 2px solid var(--grey);
+
       border-radius: 4px;
       appearance: none;
       aspect-ratio: 1;
       outline: 0;
       position: relative;
+
       cursor: pointer;
       transition: background-color 175ms cubic-bezier(0.1, 0.1, 0.25, 1);
       &:hover {
@@ -75,7 +93,7 @@
         display: block;
         top: -2px;
         left: 3px;
-        width: 8px;
+        width: 6px;
         height: 12px;
         border-style: solid;
         border-color: white;

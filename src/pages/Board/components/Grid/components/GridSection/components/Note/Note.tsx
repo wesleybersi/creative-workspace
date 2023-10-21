@@ -1,7 +1,7 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, memo } from "react";
 import Section from "../../../../../../../../store/data/section";
 import styles from "./note.module.scss";
-import useCollage from "../../../../../../local-store/useCollage";
+
 import Menu from "../Menu/Menu";
 
 //Menu
@@ -10,15 +10,17 @@ import { AiOutlineAlignLeft as IconAlignLeft } from "react-icons/ai";
 import { AiOutlineAlignRight as IconAlignRight } from "react-icons/ai";
 import { AiOutlineAlignCenter as IconAlignCenter } from "react-icons/ai";
 import { ImFontSize as IconFontSize } from "react-icons/im";
+import useStore from "../../../../../../../../store/store";
 
 interface Props {
   section: Section;
+  isEditable: boolean;
 }
 
-const Note: React.FC<Props> = ({ section }) => {
+const Note: React.FC<Props> = ({ section, isEditable }) => {
   const PLACEHOLDER_TEXT = "Empty note";
 
-  const { selectedSection } = useCollage();
+  const { selectedSection, mode } = useStore();
   const [noteValue, setNoteValue] = useState<string>("");
   const [placeholder, setPlaceholder] = useState<string>(PLACEHOLDER_TEXT);
   const [textAlign, setTextAlign] = useState<"left" | "right" | "center">(
@@ -44,23 +46,29 @@ const Note: React.FC<Props> = ({ section }) => {
   }, [newInput]);
 
   useEffect(() => {
-    if (selectedSection !== section) {
-      noteRef.current?.blur();
-    } else {
+    if (selectedSection === section && isEditable) {
       noteRef.current?.focus();
+    } else {
+      noteRef.current?.blur();
     }
-  }, [selectedSection]);
+  }, [selectedSection, isEditable]);
 
   return (
     <div
       className={styles.wrapper}
       style={{
         textAlign: "center",
-        pointerEvents: selectedSection !== section ? "none" : "all",
+        pointerEvents: isEditable ? "all" : "none",
       }}
     >
       {placeholder && (
-        <div className={styles.placeholder} style={{ position: "absolute" }}>
+        <div
+          className={styles.placeholder}
+          style={{
+            position: "absolute",
+            opacity: mode === "Interact" ? 0 : undefined,
+          }}
+        >
           {placeholder}
         </div>
       )}
@@ -80,7 +88,7 @@ const Note: React.FC<Props> = ({ section }) => {
       >
         {noteValue}
       </div>
-      {selectedSection === section && (
+      {isEditable && selectedSection === section && (
         <Menu
           items={[
             {
@@ -130,4 +138,4 @@ const Note: React.FC<Props> = ({ section }) => {
   );
 };
 
-export default Note;
+export default memo(Note);

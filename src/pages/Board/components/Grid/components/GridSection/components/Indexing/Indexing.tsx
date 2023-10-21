@@ -1,6 +1,6 @@
 import { useState } from "react";
 import Section from "../../../../../../../../store/data/section";
-import useCollage from "../../../../../../local-store/useCollage";
+
 import Menu from "../Menu/Menu";
 import Index from "./components/Index/Index";
 
@@ -8,13 +8,14 @@ import styles from "./list.module.scss";
 
 import { BiPlus as IconPlus, BiMinus as IconMinus } from "react-icons/bi";
 import { GiVerticalFlip as IconInvert } from "react-icons/gi";
+import useStore from "../../../../../../../../store/store";
 
 interface Props {
   section: Section;
 }
 
 const Indexing: React.FC<Props> = ({ section }) => {
-  const { selectedSection } = useCollage();
+  const { selectedSection } = useStore();
   const [offset, setOffset] = useState<number>(0);
   const [invert, setInvert] = useState<boolean>(false);
 

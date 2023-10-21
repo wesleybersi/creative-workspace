@@ -5,6 +5,7 @@ import Client from "./data/client";
 import Section, { SectionType } from "./data/section";
 import Tile from "./data/tile";
 import { updateSectionInBoard } from "./utilities";
+import Area from "./data/area";
 
 const useStore = create<Store>((set) => ({
   client: new Client("Joanna Lee"),
@@ -12,17 +13,52 @@ const useStore = create<Store>((set) => ({
   toolTip: "",
   cursor: "",
   mode: "Edit",
+  isEditingSection: false,
   isMouseDown: false,
   newestSectionId: "",
+  selectedType: "Note",
+  selectedTiles: [],
+  selectedSection: null,
+  selection: null,
+  cellSize: 0,
   newBoard: () =>
     set((state) => {
       const board = new Board(state.client.name + "'s collage", {
-        rows: 14,
-        cols: 28,
+        rows: 16,
+        cols: 32,
       });
       return {
         boards: [...state.boards, board],
       };
+    }),
+  newArea: (
+    boardId: string,
+    position: {
+      row: { start: number; end: number };
+      col: { start: number; end: number };
+    }
+  ) =>
+    set((state) => {
+      const boards = [...state.boards];
+      const boardIndex = boards.findIndex((b) => b.id === boardId);
+      const board = { ...state.boards[boardIndex] };
+      const startRow = Math.min(position.row.start, position.row.end);
+      const endRow = Math.max(position.row.start, position.row.end);
+      const startCol = Math.min(position.col.start, position.col.end);
+      const endCol = Math.max(position.col.start, position.col.end);
+
+      const sectionPosition = {
+        row: { start: startRow + 1, end: endRow + 2 },
+        col: { start: startCol + 1, end: endCol + 2 },
+      };
+      const size = { rows: endRow - startRow + 1, cols: endCol - startCol + 1 };
+      const area = new Area(board.id, sectionPosition, size);
+      board.areas.push(area);
+
+      const noteColors = ["#D9F0FF", "#CDF1CC", "#FFE9D9", "#F6F5BC"];
+      area.color = noteColors[Math.floor(Math.random() * noteColors.length)];
+      // area.color = "#eEeFf";
+      return { boards };
     }),
   newSection: (
     boardId: string,
@@ -37,19 +73,21 @@ const useStore = create<Store>((set) => ({
       const boardIndex = boards.findIndex((b) => b.id === boardId);
       const board = { ...state.boards[boardIndex] };
       const tiles = [...board.tiles];
-
       const startRow = Math.min(position.row.start, position.row.end);
       const endRow = Math.max(position.row.start, position.row.end);
       const startCol = Math.min(position.col.start, position.col.end);
       const endCol = Math.max(position.col.start, position.col.end);
+      console.log("A");
 
       const sectionPosition = {
         row: { start: startRow + 1, end: endRow + 2 },
         col: { start: startCol + 1, end: endCol + 2 },
       };
+      console.log("B");
       const size = { rows: endRow - startRow + 1, cols: endCol - startCol + 1 };
       const section = new Section(board.id, type, sectionPosition, size);
 
+      console.log("C");
       for (const row of tiles) {
         for (const tile of row) {
           if (
@@ -62,6 +100,7 @@ const useStore = create<Store>((set) => ({
           }
         }
       }
+      console.log("D");
       board.tiles = tiles;
       board.sections.push(section);
 
@@ -69,8 +108,30 @@ const useStore = create<Store>((set) => ({
         const noteColors = ["#D9F0FF", "#CDF1CC", "#FFE9D9", "#F6F5BC"];
         section.color =
           noteColors[Math.floor(Math.random() * noteColors.length)];
+      } else if (type === "Emoji") {
+        section.color = "transparent";
       }
+      console.log("New section!");
+      console.log(section);
+
       return { boards, newestSectionId: section.id };
+    }),
+  copySection: (
+    boardId: string,
+    sectionId: string,
+    updateCallback: (section: Section) => Section
+  ) =>
+    set((state) => {
+      const updatedBoards = updateSectionInBoard(
+        state.boards,
+        boardId,
+        sectionId,
+        (section) => {
+          return section;
+        }
+      );
+
+      return { boards: updatedBoards };
     }),
   expandSection: (boardId, sectionId, direction, handle) =>
     set((state) => {
@@ -85,7 +146,6 @@ const useStore = create<Store>((set) => ({
       const row = { ...section.position.row };
       const col = { ...section.position.col };
       const size = { ...section.size };
-      let cursor = "";
 
       switch (handle) {
         case "tl":
@@ -100,7 +160,6 @@ const useStore = create<Store>((set) => ({
             size.rows--;
             size.cols--;
           }
-          cursor = "nw-resize";
           break;
         case "tc":
           if (direction === "out") {
@@ -112,7 +171,6 @@ const useStore = create<Store>((set) => ({
           }
           break;
         case "tr":
-          console.log("Initial size", size);
           if (direction === "out") {
             row.start--;
             col.end++;
@@ -179,12 +237,12 @@ const useStore = create<Store>((set) => ({
           }
           break;
       }
+
       if (size.cols <= 0 || size.rows <= 0) return {};
       if (row.end <= 0) return {};
       if (col.end <= 0) return {};
       if (row.end <= row.start) return {};
       if (col.end <= col.start) return {};
-
       if (row.start < 0) return {};
       if (col.start < 0) return {};
       if (row.end - 1 > board.size.rows) return {};

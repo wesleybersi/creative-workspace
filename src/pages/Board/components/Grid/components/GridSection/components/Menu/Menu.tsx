@@ -1,6 +1,6 @@
 import { IconType } from "react-icons";
 import styles from "./menu.module.scss";
-import useCollage from "../../../../../../local-store/useCollage";
+import useStore from "../../../../../../../../store/store";
 
 interface Option {
   tooltip: string;
@@ -15,8 +15,6 @@ interface Props {
   items: Option[];
 }
 const Menu: React.FC<Props> = ({ items }) => {
-  const { selectedSection } = useCollage();
-
   return (
     <div className={styles.wrapper}>
       <div className={styles.items}>

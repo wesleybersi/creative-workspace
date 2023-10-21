@@ -1,76 +1,115 @@
 import styles from "./grid.module.scss";
 import Board from "../../../../store/data/board";
-import useCollage from "../../local-store/useCollage";
 import useStore from "../../../../store/store";
 import { useEffect, useRef, useState } from "react";
 import GridSection from "./components/GridSection/GridSection";
-import Section from "../../../../store/data/section";
+import useWindowSize from "../../../../hooks/useWindowSize";
+import GridArea from "./components/GridArea/GridArea";
 
 interface Props {
   board: Board;
 }
 
 const Grid: React.FC<Props> = ({ board }) => {
+  const [dim] = useWindowSize();
   const gridRef = useRef<HTMLDivElement | null>(null);
   const sectionRef = useRef<HTMLDivElement | null>(null);
+  const areaRef = useRef<HTMLDivElement | null>(null);
 
-  const { newSection, isMouseDown, mode } = useStore();
+  const [zOrder, setZOrder] = useState<string[]>([]);
+
+  const {
+    set,
+    newSection,
+    isMouseDown,
+    mode,
+    selection,
+    selectedTiles,
+    selectedType,
+    newArea,
+  } = useStore();
   const { size } = board;
-  const { set, selection, selectedTiles, expandedSection, selectedType } =
-    useCollage();
   const [preview] = useState<boolean>(false);
 
-  const [sectionPositions, setSectionPositions] = useState<
-    {
-      section: Section;
-      x: number;
-      y: number;
-      width: number;
-      height: number;
-    }[]
-  >([]);
-
+  //Form a new section when letting go of the mouse
   useEffect(() => {
     if (!isMouseDown && selection && selectedType) {
-      newSection(board.id, selectedType, selection);
+      if (selectedType === "Area") {
+        newArea(board.id, selection);
+      } else {
+        newSection(board.id, selectedType, selection);
+      }
       set({ selection: null, selectedSection: null });
     }
   }, [isMouseDown]);
 
+  //Set global cellsize for future reference
   useEffect(() => {
-    setSectionPositions([]);
     if (!gridRef.current) return;
+    const cell = gridRef.current.firstChild as HTMLElement;
+    if (cell) set({ cellSize: cell.offsetWidth });
+  }, [gridRef, dim.width, dim.height]);
+
+  useEffect(() => {
+    const currentOrder = [...zOrder];
+    const removeIds: string[] = [];
+
     for (const section of board.sections) {
-      const firstIndex =
-        section.position.row.start * board.size.rows +
-        section.position.col.start;
-      const lastIndex =
-        section.position.row.end -
-        1 * board.size.rows +
-        section.position.col.end -
-        1;
-
-      const firstTile = gridRef.current.children[firstIndex] as HTMLElement;
-      const lastTile = gridRef.current.children[lastIndex] as HTMLElement;
-      if (!firstTile || !lastTile) continue;
-
-      const x = firstTile.offsetLeft;
-      const y = firstTile.offsetTop;
-      const width = lastTile.offsetLeft + lastTile.offsetWidth - x;
-      const height = lastTile.offsetTop + lastTile.offsetHeight - y;
-
-      setSectionPositions((prev) => [
-        ...prev,
-        {
-          section,
-          x,
-          y,
-          width,
-          height,
-        },
-      ]);
+      if (zOrder.includes(section.id)) continue;
+      currentOrder.push(section.id);
     }
-  }, [gridRef, board.sections, board.sections.length]);
+
+    for (const id of currentOrder) {
+      const index = board.sections.findIndex((s) => s.id === id);
+      if (index >= 0) continue;
+      else {
+        removeIds.push(id);
+      }
+    }
+
+    const newOrder = currentOrder.filter((id) => !removeIds.includes(id));
+    setZOrder(newOrder);
+  }, [board.sections.length, board.sections]);
+
+  function bringToTop(sectionId: string) {
+    setZOrder((prevOrder) => {
+      const order = [...prevOrder];
+      const index = order.indexOf(sectionId);
+      if (index >= 0) {
+        order.splice(index, 1);
+        order.push(sectionId);
+      }
+      return order;
+    });
+  }
+
+  function increaseZIndex(sectionId: string) {
+    setZOrder((prevOrder) => {
+      const order = [...prevOrder];
+      const index = order.indexOf(sectionId);
+      if (index >= 0 && index < order.length - 1) {
+        order.splice(index, 1);
+        const newIndex = index + 1;
+        order.splice(newIndex, 0, sectionId);
+      }
+
+      return order;
+    });
+  }
+
+  function decreaseZIndex(sectionId: string) {
+    setZOrder((prevOrder) => {
+      const order = [...prevOrder];
+      const index = order.indexOf(sectionId);
+      if (index >= 1) {
+        order.splice(index, 1);
+        const newIndex = index - 1;
+        order.splice(newIndex, 0, sectionId);
+      }
+
+      return order;
+    });
+  }
 
   return (
     <>
@@ -86,11 +125,7 @@ const Grid: React.FC<Props> = ({ board }) => {
           ref={gridRef}
           style={{
             gridTemplateColumns: `repeat(${size.cols},1fr)`,
-
-            opacity: expandedSection ? 0 : 1,
           }}
-          onMouseEnter={() => set({ isOnBoard: true })}
-          onMouseLeave={() => set({ isOnBoard: false })}
         >
           {board.tiles.map((row, y) =>
             row.map((tile, x) => {
@@ -139,8 +174,12 @@ const Grid: React.FC<Props> = ({ board }) => {
                     }
                   }}
                 >
-                  {/* <p>{tile.index}</p> */}
-                  {/* {selectedTiles.includes(tile) && <p>!</p>} */}
+                  <div style={{ opacity: 0.15 }}>
+                    {/* <p>{tile.index}</p> */}
+                    {/* <p>{tile.col}</p> */}
+                    {/* <p>{tile.row}</p> */}
+                  </div>
+                  {/* {cellSize} */}
                 </div>
               );
             })
@@ -154,8 +193,27 @@ const Grid: React.FC<Props> = ({ board }) => {
             gridTemplateRows: `repeat(${size.rows},1fr)`,
           }}
         >
-          {sectionPositions.map(({ section }) => (
-            <GridSection section={section} gridRef={gridRef.current} />
+          {board.sections.map((section) => (
+            <GridSection
+              section={section}
+              gridRef={gridRef.current}
+              z={zOrder.findIndex((id) => id === section.id)}
+              bringToTop={bringToTop}
+              increaseZ={increaseZIndex}
+              decreaseZ={decreaseZIndex}
+            />
+          ))}
+        </section>
+        <section
+          ref={areaRef}
+          className={styles.areas}
+          style={{
+            gridTemplateColumns: `repeat(${size.cols},1fr)`,
+            gridTemplateRows: `repeat(${size.rows},1fr)`,
+          }}
+        >
+          {board.areas.map((area) => (
+            <GridArea area={area} gridRef={gridRef.current} />
           ))}
         </section>
       </div>

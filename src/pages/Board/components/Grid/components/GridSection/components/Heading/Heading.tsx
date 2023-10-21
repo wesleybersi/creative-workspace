@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import Section from "../../../../../../../../store/data/section";
 import styles from "./heading.module.scss";
-import useCollage from "../../../../../../local-store/useCollage";
 
 import { AiOutlineAlignLeft as IconAlignLeft } from "react-icons/ai";
 import { AiOutlineAlignRight as IconAlignRight } from "react-icons/ai";
@@ -11,20 +10,19 @@ import useStore from "../../../../../../../../store/store";
 import Menu from "../Menu/Menu";
 
 interface Props {
+  isEditable: boolean;
   section: Section;
 }
 
-const Heading: React.FC<Props> = ({ section }) => {
-  const { collageIndex, selectedSection } = useCollage();
-  const { deleteSection: clearSection } = useStore();
+const Heading: React.FC<Props> = ({ isEditable, section }) => {
+  const { selectedSection } = useStore();
   const [textAlign, setTextAlign] = useState<"left" | "right" | "center">(
     "center"
   );
   const headRef = useRef<HTMLHeadingElement | null>(null);
-  const [noteValue, setNoteValue] = useState<string>("");
 
   useEffect(() => {
-    if (selectedSection === section) {
+    if (selectedSection === section && isEditable) {
       headRef.current?.focus();
     } else {
       headRef.current?.blur();
@@ -34,7 +32,7 @@ const Heading: React.FC<Props> = ({ section }) => {
   return (
     <div
       className={styles.wrapper}
-      style={{ pointerEvents: selectedSection === section ? "all" : "none" }}
+      style={{ pointerEvents: isEditable ? "all" : "none" }}
     >
       <div className={styles.header}>
         <h1
@@ -71,7 +69,7 @@ const Heading: React.FC<Props> = ({ section }) => {
         </h1>
       </div>
 
-      {selectedSection === section && (
+      {isEditable && selectedSection === section && (
         <Menu
           items={[
             {

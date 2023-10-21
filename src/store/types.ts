@@ -1,19 +1,35 @@
 import Board from "./data/board";
 import Client from "./data/client";
 import Section, { SectionType } from "./data/section";
+import Tile from "./data/tile";
 
 interface Store {
   client: Client;
   boards: Board[];
+
   toolTip: string;
   cursor: string;
   mode: "Interact" | "Edit";
   isMouseDown: boolean;
+  isEditingSection: boolean;
   newestSectionId: string | null;
-
+  selection: Selection | null;
+  selectedType: SectionType | null;
+  selectedTiles: Tile[];
+  selectedSection: Section | null;
+  cellSize: number;
   //Boards
   newBoard: () => void;
   expandBoard: (boardId: string) => void;
+
+  //Areas
+  newArea: (
+    boardId: string,
+    position: {
+      row: { start: number; end: number };
+      col: { start: number; end: number };
+    }
+  ) => void;
 
   //Sections
   newSection: (
@@ -24,6 +40,7 @@ interface Store {
       col: { start: number; end: number };
     }
   ) => void;
+
   deleteSection: (boardId: string, sectionId: string) => void;
   expandSection: (
     boardId: string,
@@ -53,3 +70,10 @@ interface Store {
 }
 
 export default Store;
+
+export type Selection = {
+  row: { start: number; end: number };
+  col: { start: number; end: number };
+};
+
+export type Tool = "Pointer" | "Move";

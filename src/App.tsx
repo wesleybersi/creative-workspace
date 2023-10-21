@@ -13,7 +13,16 @@ import _Board from "./pages/Board/Board";
 
 function App() {
   const navigate = useNavigate();
-  const { boards, set, mode, cursor } = useStore();
+  const { boards, set, mode, cursor, cellSize } = useStore();
+
+  useEffect(() => {
+    const base = Math.round(cellSize * 0.28);
+    document.body.style.setProperty("--font-size", `${base}px`);
+    document.body.style.setProperty("--pad", `${base}px`);
+    document.body.style.setProperty("--half-pad", `${base / 2}px`);
+    document.body.style.setProperty("--semi-pad", `${base * 1.5}px`);
+    document.body.style.setProperty("--double-pad", `${base * 2}px`);
+  }, [cellSize]);
 
   const routes = [
     {
@@ -38,10 +47,10 @@ function App() {
       onMouseUp={() => set({ isMouseDown: false })}
     >
       <header className={styles.header}>
-        <section></section>
         <section>
-          <h2>Creative Workspace</h2>
+          <h3>Creative Workspace</h3>
         </section>
+        <section></section>
         <section>
           <button
             style={

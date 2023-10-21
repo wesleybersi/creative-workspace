@@ -8,6 +8,17 @@
   height: 100%;
   color: #444;
   z-index: 101;
+  grid-row: span 2;
+  .bullet {
+    background: #444;
+    min-width: calc(var(--font-size) * 0.5);
+    min-height: calc(var(--font-size) * 0.5);
+    max-width: calc(var(--font-size) * 0.5);
+    max-height: calc(var(--font-size) * 0.5);
+    margin-left: var(--pad);
+    aspect-ratio: 1;
+    border-radius: 50%;
+  }
   .item {
     border-radius: 0.25rem;
     user-select: none;
@@ -15,6 +26,7 @@
     height: 100%;
     align-items: center;
     position: relative;
+
     &:hover {
       .handle {
         opacity: 0.5;
@@ -26,23 +38,34 @@
       opacity: 0;
       display: none;
     }
-    .text {
-      padding-left: var(--inner-pad);
-      padding-right: var(--inner-pad);
-      border: none;
-      outline: none;
-      font-size: 1.1rem;
-      user-select: none;
-      background: none;
-      // background: #f1f8ff;
-
-      height: 100%;
+    .textWrap {
+      display: flex;
+      flex-direction: column;
       width: 100%;
-      font-weight: 400;
-      font-family: "Poppins";
-      &::placeholder {
-        opacity: 0.5;
+      height: 100%;
+      padding-left: var(--pad);
+      padding-right: var(--pad);
+      justify-content: center;
+      gap: var(--half-pad);
+      overflow: hidden;
+
+      .text {
+        font-size: var(--font-size);
+        border: none;
+        outline: none;
+        user-select: none;
+        background: none;
+        // background: #f1f8ff;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+
         font-weight: 400;
+        font-family: "Poppins";
+        &::placeholder {
+          opacity: 0.5;
+          font-weight: 400;
+        }
       }
     }
   }

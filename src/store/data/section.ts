@@ -1,5 +1,4 @@
 import { IconType } from "react-icons";
-import Board from "./board";
 
 import { BsImageAlt as IconImage } from "react-icons/bs";
 import { ImMusic as IconMusic } from "react-icons/im";
@@ -13,8 +12,11 @@ import { BsCardHeading as IconHeading } from "react-icons/bs";
 import { GoNote as IconNote } from "react-icons/go";
 import { PiRectangleLight as IconEmpty } from "react-icons/pi";
 import { ImSortNumericAsc as IconIndexing } from "react-icons/im";
-
-export default class Section {
+import { PiShapesFill as IconShape } from "react-icons/pi";
+import { HiOutlineArrowRight as IconLine } from "react-icons/hi";
+import { BsEmojiWink as IconEmoji } from "react-icons/bs";
+import { RxSection as IconArea } from "react-icons/rx";
+export default class Area {
   id: string;
   boardId: string;
   created: { at: number; by: string } | null = null;
@@ -25,13 +27,12 @@ export default class Section {
     row: { start: number; end: number };
     col: { start: number; end: number };
   };
-
   color = "white";
   image: File | null = null;
   text: string[] = [];
   isValid = false;
   depth = 1;
-  pages: Section[][] = [[]];
+  pages: Area[][] = [[]];
   constructor(
     boardId: string,
     type: SectionType,
@@ -56,6 +57,7 @@ export default class Section {
 }
 
 export type SectionType =
+  | "Area"
   | "Color"
   | "To-do"
   | "Text"
@@ -77,7 +79,10 @@ export type SectionType =
   | "Chart"
   | "Indexing"
   | "None"
-  | "Comment";
+  | "Comment"
+  | "Shape"
+  | "Arrow"
+  | "Emoji";
 
 export interface SectionTypeData {
   name: SectionType;
@@ -88,6 +93,10 @@ export interface SectionTypeData {
 export const sectionTypes: SectionTypeData[] = [
   {
     name: "None",
+    icon: IconEmpty,
+  },
+  {
+    name: "Area",
     icon: IconEmpty,
   },
   {
@@ -123,6 +132,14 @@ export const sectionTypes: SectionTypeData[] = [
     name: "Music",
     icon: IconMusic,
   },
+  {
+    name: "Shape",
+    icon: IconShape,
+  },
+  {
+    name: "Arrow",
+    icon: IconLine,
+  },
   // {
   //   name: "Canvas",
   //   icon: IconPencil,
@@ -130,6 +147,10 @@ export const sectionTypes: SectionTypeData[] = [
   {
     name: "Video",
     icon: IconVideo,
+  },
+  {
+    name: "Emoji",
+    icon: IconEmoji,
   },
   {
     name: "Poll",

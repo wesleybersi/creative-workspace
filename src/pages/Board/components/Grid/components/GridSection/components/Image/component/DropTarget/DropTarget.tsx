@@ -7,7 +7,7 @@ interface Props {
   section: Section;
 }
 const DropTarget: React.FC<Props> = ({ section }) => {
-  const { updateSection } = useStore();
+  const { updateSection, cellSize } = useStore();
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     const image = e.dataTransfer.files[0];
@@ -39,8 +39,8 @@ const DropTarget: React.FC<Props> = ({ section }) => {
             <IconUpload
               size={
                 section.size.cols === 1 || section.size.rows === 1
-                  ? "40px"
-                  : "48px"
+                  ? `${cellSize * 0.7}px`
+                  : `${cellSize}px`
               }
             />
           </div>

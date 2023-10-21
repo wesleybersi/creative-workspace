@@ -7,15 +7,14 @@ import DropTarget from "./component/DropTarget/DropTarget";
 import Menu from "../Menu/Menu";
 import { AiFillFolderOpen as IconUpload } from "react-icons/ai";
 import { AiOutlineClear as IconClear } from "react-icons/ai";
-import useCollage from "../../../../../../local-store/useCollage";
 
 interface Props {
+  isEditable: boolean;
   section: Section;
 }
 
-const Image: React.FC<Props> = ({ section }) => {
-  const { selectedSection } = useCollage();
-  const { updateSection } = useStore();
+const Image: React.FC<Props> = ({ section, isEditable }) => {
+  const { updateSection, selectedSection } = useStore();
   const [backgroundImage, setBackgroundImage] = useState<string>("");
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [zoomLevel, setZoomLevel] = useState<number>(0);

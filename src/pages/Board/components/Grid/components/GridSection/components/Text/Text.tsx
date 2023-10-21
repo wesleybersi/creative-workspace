@@ -1,7 +1,6 @@
-import { useState } from "react";
+import { memo, useCallback, useEffect, useRef, useState } from "react";
 import Section from "../../../../../../../../store/data/section";
 import styles from "./story.module.scss";
-import useCollage from "../../../../../../local-store/useCollage";
 
 import { AiOutlineAlignLeft as IconAlignLeft } from "react-icons/ai";
 import { AiOutlineAlignRight as IconAlignRight } from "react-icons/ai";
@@ -10,30 +9,104 @@ import { AiOutlineAlignCenter as IconAlignCenter } from "react-icons/ai";
 import useStore from "../../../../../../../../store/store";
 import Menu from "../Menu/Menu";
 
+import { Editor, createEditor } from "slate";
+import {
+  Slate,
+  Editable,
+  withReact,
+  RenderLeafProps,
+  ReactEditor,
+} from "slate-react";
+
 interface Props {
   section: Section;
+  isEditable: boolean;
 }
 
-const Text: React.FC<Props> = ({ section }) => {
-  const { collageIndex, selectedSection } = useCollage();
-  const { deleteSection: clearSection } = useStore();
+const Text: React.FC<Props> = ({ section, isEditable }) => {
+  const { selectedSection } = useStore();
   const [textAlign, setTextAlign] = useState<"left" | "right" | "center">(
     "left"
   );
-  const [noteValue, setNoteValue] = useState<string>("");
+  const textRef = useRef<HTMLTextAreaElement | null>(null);
+
+  const [editor] = useState(() => withReact(createEditor()));
+  const initialValue = [
+    {
+      type: "paragraph",
+      children: [{ text: "A line of text in a paragraph." }],
+    },
+  ];
+
+  // useEffect(() => {
+  //   if (selectedSection === section && isEditable) {
+  //     textRef.current?.focus();
+  //   } else {
+  //     textRef.current?.blur();
+  //   }
+  // }, [selectedSection, isEditable]);
+
+  // const renderElement = useCallback((props) => {
+  //   switch (props.element.type) {
+  //     case "quote":
+  //       return <QuoteElement {...props} />;
+  //     case "link":
+  //       return <LinkElement {...props} />;
+  //     default:
+  //       return <DefaultElement {...props} />;
+  //   }
+  // }, []);
 
   return (
-    <div className={styles.wrapper} style={{ textAlign }}>
+    <div
+      className={styles.wrapper}
+      style={{ textAlign, pointerEvents: isEditable ? "all" : "none" }}
+    >
       <div className={styles.content} style={{ textAlign }}>
-        <textarea
+        <Slate editor={editor} initialValue={initialValue}>
+          <Editable
+            renderLeaf={({ attributes, children, leaf }) => {
+              return (
+                <span
+                  {...attributes}
+                  style={{ fontWeight: leaf.bold ? "bold" : "normal" }}
+                >
+                  {children}
+                </span>
+              );
+            }}
+            onKeyDown={(event) => {
+              console.log(event.key);
+              if (!event.metaKey) return;
+              const marks = Editor.marks(editor);
+              if (!marks) return;
+              switch (event.key) {
+                case "b":
+                  event.preventDefault();
+                  Editor.addMark(editor, "bold", !marks?.bold);
+                  break;
+                case "i":
+                  event.preventDefault();
+                  Editor.addMark(editor, "italic", true);
+                  break;
+                case "u":
+                  event.preventDefault();
+                  Editor.addMark(editor, "underline", true);
+                  break;
+              }
+            }}
+          />
+        </Slate>
+        {/* <textarea
+          ref={textRef}
           spellCheck="false"
-          placeholder="Click here to edit your story"
+          placeholder={mode === "Edit" ? "Empty text node" : ""}
           onChange={(event) => setNoteValue(event.target.value)}
           value={noteValue}
-          style={{ textAlign }}
-        />
+          style={{ textAlign, fontSize: "var(--font-size)" }}
+        /> */}
       </div>
-      {selectedSection === section && (
+      {isEditable && selectedSection === section && (
         <Menu
           items={[
             {
@@ -67,4 +140,4 @@ const Text: React.FC<Props> = ({ section }) => {
   );
 };
 
-export default Text;
+export default memo(Text);

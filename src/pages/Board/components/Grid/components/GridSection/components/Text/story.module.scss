@@ -9,31 +9,32 @@
   color: #444;
   z-index: 100;
   .content {
-    padding: var(--inner-pad);
+    padding: var(--semi-pad);
     display: flex;
     flex-direction: column;
     height: 100%;
-    textarea {
-      overflow: hidden;
-      height: 100%;
+    font-size: var(--font-size);
+    // textarea {
+    //   overflow: hidden;
+    //   height: 100%;
 
-      width: 100%;
-      border: none;
-      font-size: 1rem;
-      font-family: "Poppins";
-      color: #444;
-      font-weight: 400;
-      outline: none;
-      line-height: 1.5;
-      background: none;
-      resize: none;
-      &::placeholder {
-        opacity: 0.5;
-      }
-    }
+    //   width: 100%;
+    //   border: none;
+    //   font-size: 1rem;
+    //   font-family: "Poppins";
+    //   color: #444;
+    //   font-weight: 400;
+    //   outline: none;
+    //   line-height: 1.5;
+    //   background: none;
+    //   resize: none;
+    //   &::placeholder {
+    //     opacity: 0.5;
+    //   }
+    // }
 
-    textarea:focus::placeholder {
-      color: transparent;
-    }
+    // textarea:focus::placeholder {
+    //   color: transparent;
+    // }
   }
 }

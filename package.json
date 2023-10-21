@@ -17,6 +17,7 @@
     "react-icons": "^4.10.1",
     "react-router-dom": "^6.15.0",
     "sass": "^1.66.1",
+    "slate-react": "^0.100.0",
     "zustand": "^4.4.1"
   },
   "devDependencies": {

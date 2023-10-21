@@ -1,5 +1,5 @@
 import Section from "../../../../../../../../store/data/section";
-import useCollage from "../../../../../../local-store/useCollage";
+
 import Menu from "../Menu/Menu";
 
 import styles from "./poll.module.scss";
@@ -9,31 +9,44 @@ import { IoMdColorFill as IconBackground } from "react-icons/io";
 import { AiOutlineAlignLeft as IconAlignLeft } from "react-icons/ai";
 import { AiOutlineAlignRight as IconAlignRight } from "react-icons/ai";
 import { AiOutlineAlignCenter as IconAlignCenter } from "react-icons/ai";
+import { BsArrowsExpand as IconExpand } from "react-icons/bs";
 
 import { useState } from "react";
 import Option from "./components/Option/Option";
+import useStore from "../../../../../../../../store/store";
 
 interface Props {
   section: Section;
+  isEditable: boolean;
 }
 
-const List: React.FC<Props> = ({ section }) => {
-  const { selectedSection } = useCollage();
+const List: React.FC<Props> = ({ section, isEditable }) => {
+  const [isExpanded, setIsExpanded] = useState<boolean>(false);
+  const { selectedSection } = useStore();
   const [textAlign, setTextAlign] = useState<"left" | "center" | "right">(
     "left"
   );
   const [showResult, setShowResult] = useState<boolean>(false);
 
   return (
-    <div className={styles.wrapper}>
+    <div
+      className={styles.wrapper}
+      style={{ pointerEvents: isEditable ? "all" : "none" }}
+    >
       <section
         className={styles.grid}
         style={{
           gridTemplateColumns: `repeat(1, 1fr)`,
-          gridTemplateRows: `repeat(${section.size.rows}, 1fr)`,
+          gridTemplateRows: `repeat(${
+            isExpanded ? Math.ceil(section.size.rows / 2) : section.size.rows
+          }, 1fr)`,
         }}
       >
-        {Array.from({ length: section.size.rows }).map((_, index) => (
+        {Array.from({
+          length: isExpanded
+            ? Math.ceil(section.size.rows / 2)
+            : section.size.rows,
+        }).map((_, index) => (
           <Option
             section={section}
             index={index + 1}
@@ -44,9 +57,17 @@ const List: React.FC<Props> = ({ section }) => {
           />
         ))}
       </section>
-      {selectedSection === section && (
+      {isEditable && selectedSection === section && (
         <Menu
           items={[
+            {
+              tooltip: "Expand",
+              icon: IconExpand,
+              isSelected: isExpanded,
+              onClick: () => {
+                setIsExpanded((prev) => !prev);
+              },
+            },
             {
               tooltip: "Align Left",
               icon: IconAlignLeft,

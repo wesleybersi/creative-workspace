@@ -9,4 +9,7 @@
 
   inset: calc(var(--padding) * 0.8);
   //   border: 2px dashed var(--grey);
+  p {
+    font-size: var(--font-size);
+  }
 }
