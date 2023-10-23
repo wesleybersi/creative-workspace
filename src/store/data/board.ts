@@ -1,5 +1,5 @@
-import Area from "./area";
-import Area from "./section";
+import Carousel from "./carousel";
+import Section from "./section";
 import Tile from "./tile";
 
 export default class Board {
@@ -7,8 +7,8 @@ export default class Board {
   target = "";
   size: { rows: number; cols: number };
   tiles: Tile[][];
-  sections: Area[] = [];
-  areas: Area[] = [];
+  sections: Section[] = [];
+  areas: Carousel[] = [];
   name = "";
   description: string[] = [];
   constructor(name: string, size: { rows: number; cols: number }) {

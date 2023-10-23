@@ -1,7 +1,7 @@
 import { useEffect, useLayoutEffect, useState } from "react";
 import useStore from "../../../../../../../store/store";
 
-import Area from "../../../../../../../store/data/area";
+import Carousel from "../../../../../../../store/data/area";
 
 interface DragData {
   x: number;
@@ -13,7 +13,7 @@ interface DragData {
 
 export default function useDragSection(
   isDragEnabled: boolean,
-  area: Area,
+  area: Carousel,
   areaRef: HTMLDivElement | null,
   gridRef: HTMLDivElement | null
 ): {

@@ -1,7 +1,4 @@
-import { getColor } from "../../utils/helper-functions";
-import Area from "./section";
-
-export default class Area {
+export default class Page {
   id: string;
   boardId: string;
   created: { at: number; by: string } | null = null;
@@ -11,12 +8,9 @@ export default class Area {
     row: { start: number; end: number };
     col: { start: number; end: number };
   };
-  color = getColor();
+  color = "white";
   image: File | null = null;
   text: string[] = [];
-  isValid = false;
-  depth = 1;
-  tabs: Set<Area>[] = [];
   constructor(
     boardId: string,
     position: {

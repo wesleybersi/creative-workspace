@@ -9,7 +9,7 @@ interface Store {
 
   toolTip: string;
   cursor: string;
-  mode: "Interact" | "Edit";
+  mode: "Interact" | "Edit" | "Share";
   isMouseDown: boolean;
   isEditingSection: boolean;
   newestSectionId: string | null;
@@ -22,15 +22,6 @@ interface Store {
   newBoard: () => void;
   expandBoard: (boardId: string) => void;
 
-  //Areas
-  newArea: (
-    boardId: string,
-    position: {
-      row: { start: number; end: number };
-      col: { start: number; end: number };
-    }
-  ) => void;
-
   //Sections
   newSection: (
     boardId: string,
@@ -38,9 +29,17 @@ interface Store {
     position: {
       row: { start: number; end: number };
       col: { start: number; end: number };
+    },
+    carouselId?: string,
+    carouselSlide?: number
+  ) => void;
+  newArea: (
+    boardId: string,
+    position: {
+      row: { start: number; end: number };
+      col: { start: number; end: number };
     }
   ) => void;
-
   deleteSection: (boardId: string, sectionId: string) => void;
   expandSection: (
     boardId: string,

@@ -17,6 +17,7 @@ function App() {
 
   useEffect(() => {
     const base = Math.round(cellSize * 0.28);
+    document.body.style.setProperty("--cell-size", `${cellSize}px`);
     document.body.style.setProperty("--font-size", `${base}px`);
     document.body.style.setProperty("--pad", `${base}px`);
     document.body.style.setProperty("--half-pad", `${base / 2}px`);
@@ -48,7 +49,7 @@ function App() {
     >
       <header className={styles.header}>
         <section>
-          <h3>Creative Workspace</h3>
+          <h3>Interactive Boards</h3>
         </section>
         <section></section>
         <section>
@@ -81,6 +82,21 @@ function App() {
             onClick={() => set({ mode: "Interact" })}
           >
             Interact
+          </button>
+          <button
+            style={
+              mode === "Share"
+                ? {
+                    backgroundColor: "var(--primary)",
+                    borderColor: "var(--primary",
+                    color: "white",
+                    fontWeight: 600,
+                  }
+                : {}
+            }
+            onClick={() => set({ mode: "Share" })}
+          >
+            Share
           </button>
         </section>
       </header>

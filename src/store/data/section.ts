@@ -16,12 +16,14 @@ import { PiShapesFill as IconShape } from "react-icons/pi";
 import { HiOutlineArrowRight as IconLine } from "react-icons/hi";
 import { BsEmojiWink as IconEmoji } from "react-icons/bs";
 import { RxSection as IconArea } from "react-icons/rx";
-export default class Area {
+import { MdViewCarousel as IconCarousel } from "react-icons/md";
+export default class Section {
   id: string;
   boardId: string;
+  carouselId = "";
   created: { at: number; by: string } | null = null;
   lastEdited: { at: number; by: string } | null = null;
-  type: SectionType = "Empty";
+  type: SectionType | null = null;
   size: { rows: number; cols: number };
   position: {
     row: { start: number; end: number };
@@ -32,7 +34,7 @@ export default class Area {
   text: string[] = [];
   isValid = false;
   depth = 1;
-  pages: Area[][] = [[]];
+  pages: Section[][] = [[]];
   constructor(
     boardId: string,
     type: SectionType,
@@ -66,7 +68,7 @@ export type SectionType =
   | "Video"
   | "Gallery"
   | "Profile"
-  | "Empty"
+  | "Empty Page"
   | "Note"
   | "Heading"
   | "Canvas"
@@ -82,7 +84,9 @@ export type SectionType =
   | "Comment"
   | "Shape"
   | "Arrow"
-  | "Emoji";
+  | "Emoji"
+  | "Carousel"
+  | "BackgroundColor";
 
 export interface SectionTypeData {
   name: SectionType;
@@ -92,13 +96,13 @@ export interface SectionTypeData {
 
 export const sectionTypes: SectionTypeData[] = [
   {
-    name: "None",
+    name: "Empty Page",
     icon: IconEmpty,
   },
-  {
-    name: "Area",
-    icon: IconEmpty,
-  },
+  // {
+  //   name: "BackgroundColor",
+  //   icon: IconHeading,
+  // },
   {
     name: "Heading",
     icon: IconHeading,
@@ -107,10 +111,10 @@ export const sectionTypes: SectionTypeData[] = [
     name: "Text",
     icon: IconText,
   },
-  {
-    name: "Note",
-    icon: IconNote,
-  },
+  // {
+  //   name: "Note",
+  //   icon: IconNote,
+  // },
   {
     name: "Comment",
     icon: IconComment,
@@ -128,18 +132,22 @@ export const sectionTypes: SectionTypeData[] = [
     name: "Image",
     icon: IconImage,
   },
-  {
-    name: "Music",
-    icon: IconMusic,
-  },
-  {
-    name: "Shape",
-    icon: IconShape,
-  },
-  {
-    name: "Arrow",
-    icon: IconLine,
-  },
+  // {
+  //   name: "Carousel",
+  //   icon: IconCarousel,
+  // },
+  // {
+  //   name: "Music",
+  //   icon: IconMusic,
+  // },
+  // {
+  //   name: "Shape",
+  //   icon: IconShape,
+  // },
+  // {
+  //   name: "Arrow",
+  //   icon: IconLine,
+  // },
   // {
   //   name: "Canvas",
   //   icon: IconPencil,
@@ -148,10 +156,10 @@ export const sectionTypes: SectionTypeData[] = [
     name: "Video",
     icon: IconVideo,
   },
-  {
-    name: "Emoji",
-    icon: IconEmoji,
-  },
+  // {
+  //   name: "Emoji",
+  //   icon: IconEmoji,
+  // },
   {
     name: "Poll",
     icon: IconPoll,
@@ -173,8 +181,8 @@ export const sectionTypes: SectionTypeData[] = [
   //   name: "Calendar",
   //   icon: IconCalendar,
   // },
-  {
-    name: "Indexing",
-    icon: IconIndexing,
-  },
+  // {
+  //   name: "Indexing",
+  //   icon: IconIndexing,
+  // },
 ];

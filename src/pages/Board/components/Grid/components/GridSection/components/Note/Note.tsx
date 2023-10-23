@@ -66,7 +66,7 @@ const Note: React.FC<Props> = ({ section, isEditable }) => {
           className={styles.placeholder}
           style={{
             position: "absolute",
-            opacity: mode === "Interact" ? 0 : undefined,
+            opacity: mode === "Interact" ? 0 : 0.35,
           }}
         >
           {placeholder}

@@ -30,6 +30,8 @@
       position: relative;
       transition: rotate 125ms ease;
       border: 1px solid rgba(0, 0, 0, 0.04);
+      min-width: 24px;
+      min-height: 24px;
     }
     .selected {
       background-color: rgba(0, 0, 0, 0.1) !important;

@@ -8,6 +8,7 @@ export default class Tile {
   section = "";
   opacity = 1;
   cornerPiece?: "tl" | "tr" | "bl" | "br";
+  carousel = "";
   constructor(collage: Board, index: number, row: number, col: number) {
     this.index = index;
     this.row = row;

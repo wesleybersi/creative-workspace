@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import Section from "../../../../../../../store/data/section";
 import useStore from "../../../../../../../store/store";
-import Area from "../../../../../../../store/data/area";
+import Carousel from "../../../../../../../store/data/area";
 
 export type Handle = "tl" | "tr" | "tc" | "bc" | "bl" | "br" | "cl" | "cr";
 
 function useHandles(
-  area: Area,
+  area: Carousel,
   ref: HTMLDivElement | null
 ): [Handle[], Handle | "", React.Dispatch<React.SetStateAction<"" | Handle>>] {
   const handles: Handle[] = ["tl", "tr", "tc", "bc", "bl", "br", "cr", "cl"];

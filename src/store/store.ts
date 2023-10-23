@@ -5,7 +5,7 @@ import Client from "./data/client";
 import Section, { SectionType } from "./data/section";
 import Tile from "./data/tile";
 import { updateSectionInBoard } from "./utilities";
-import Area from "./data/area";
+import Carousel from "./data/carousel";
 
 const useStore = create<Store>((set) => ({
   client: new Client("Joanna Lee"),
@@ -16,7 +16,7 @@ const useStore = create<Store>((set) => ({
   isEditingSection: false,
   isMouseDown: false,
   newestSectionId: "",
-  selectedType: "Note",
+  selectedType: null,
   selectedTiles: [],
   selectedSection: null,
   selection: null,
@@ -42,6 +42,7 @@ const useStore = create<Store>((set) => ({
       const boards = [...state.boards];
       const boardIndex = boards.findIndex((b) => b.id === boardId);
       const board = { ...state.boards[boardIndex] };
+      const tiles = [...board.tiles];
       const startRow = Math.min(position.row.start, position.row.end);
       const endRow = Math.max(position.row.start, position.row.end);
       const startCol = Math.min(position.col.start, position.col.end);
@@ -52,12 +53,26 @@ const useStore = create<Store>((set) => ({
         col: { start: startCol + 1, end: endCol + 2 },
       };
       const size = { rows: endRow - startRow + 1, cols: endCol - startCol + 1 };
-      const area = new Area(board.id, sectionPosition, size);
+      const area = new Carousel(board.id, sectionPosition, size);
       board.areas.push(area);
 
-      const noteColors = ["#D9F0FF", "#CDF1CC", "#FFE9D9", "#F6F5BC"];
-      area.color = noteColors[Math.floor(Math.random() * noteColors.length)];
+      for (const row of tiles) {
+        for (const tile of row) {
+          if (
+            tile.col >= area.position.col.start - 1 &&
+            tile.col < area.position.col.end - 1 &&
+            tile.row >= area.position.row.start - 1 &&
+            tile.row < area.position.row.end - 1
+          ) {
+            tile.carousel = area.id;
+          }
+        }
+      }
+
+      // const areaColors = ["#288AF6", "#3FAF97", "#FA4554", "#FFC055"];
+      // area.color = areaColors[Math.floor(Math.random() * areaColors.length)];
       // area.color = "#eEeFf";
+      // area.color = "#288AF6";
       return { boards };
     }),
   newSection: (
@@ -66,9 +81,13 @@ const useStore = create<Store>((set) => ({
     position: {
       row: { start: number; end: number };
       col: { start: number; end: number };
-    }
+    },
+    carouselId?: string,
+    carouselSlide?: number
   ) =>
     set((state) => {
+      console.log("CAROUSEL ID:", carouselId);
+      console.log("CAROUSEL SLIDE:", carouselSlide);
       const boards = [...state.boards];
       const boardIndex = boards.findIndex((b) => b.id === boardId);
       const board = { ...state.boards[boardIndex] };
@@ -77,32 +96,45 @@ const useStore = create<Store>((set) => ({
       const endRow = Math.max(position.row.start, position.row.end);
       const startCol = Math.min(position.col.start, position.col.end);
       const endCol = Math.max(position.col.start, position.col.end);
-      console.log("A");
 
       const sectionPosition = {
         row: { start: startRow + 1, end: endRow + 2 },
         col: { start: startCol + 1, end: endCol + 2 },
       };
-      console.log("B");
+
       const size = { rows: endRow - startRow + 1, cols: endCol - startCol + 1 };
       const section = new Section(board.id, type, sectionPosition, size);
 
-      console.log("C");
       for (const row of tiles) {
         for (const tile of row) {
           if (
-            tile.col >= section.position.col.start &&
+            tile.col >= section.position.col.start - 1 &&
             tile.col < section.position.col.end - 1 &&
-            tile.row >= section.position.row.start &&
+            tile.row >= section.position.row.start - 1 &&
             tile.row < section.position.row.end - 1
           ) {
             tile.section = section.id;
           }
         }
       }
-      console.log("D");
+
       board.tiles = tiles;
-      board.sections.push(section);
+
+      if (!carouselId) {
+        board.sections.push(section);
+      } else {
+        //ANCHOR Add section to carousel
+        if (carouselSlide !== undefined) {
+          const carousels = [...board.areas];
+          const carouselIndex = carousels.findIndex((c) => c.id === carouselId);
+          const carousel = { ...carousels[carouselIndex] };
+
+          carousel.slides[carouselSlide].push(section);
+          carousels[carouselIndex] = carousel;
+          board.areas = carousels;
+          section.carouselId = carouselId;
+        }
+      }
 
       if (type === "Note") {
         const noteColors = ["#D9F0FF", "#CDF1CC", "#FFE9D9", "#F6F5BC"];
@@ -110,7 +142,10 @@ const useStore = create<Store>((set) => ({
           noteColors[Math.floor(Math.random() * noteColors.length)];
       } else if (type === "Emoji") {
         section.color = "transparent";
+      } else if (type !== "Empty Page") {
+        section.color = "transparent";
       }
+
       console.log("New section!");
       console.log(section);
 
@@ -257,9 +292,9 @@ const useStore = create<Store>((set) => ({
       for (const row of tiles) {
         for (const tile of row) {
           if (
-            tile.col >= section.position.col.start &&
+            tile.col >= section.position.col.start - 1 &&
             tile.col < section.position.col.end - 1 &&
-            tile.row >= section.position.row.start &&
+            tile.row >= section.position.row.start - 1 &&
             tile.row < section.position.row.end - 1
           ) {
             tile.section = section.id;
@@ -310,9 +345,9 @@ const useStore = create<Store>((set) => ({
       for (const row of tiles) {
         for (const tile of row) {
           if (
-            tile.col >= section.position.col.start &&
+            tile.col >= section.position.col.start - 1 &&
             tile.col < section.position.col.end - 1 &&
-            tile.row >= section.position.row.start &&
+            tile.row >= section.position.row.start - 1 &&
             tile.row < section.position.row.end - 1
           ) {
             tile.section = "";

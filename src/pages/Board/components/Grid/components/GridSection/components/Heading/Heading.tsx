@@ -20,6 +20,7 @@ const Heading: React.FC<Props> = ({ isEditable, section }) => {
     "center"
   );
   const headRef = useRef<HTMLHeadingElement | null>(null);
+  const [fontSize, setFontSize] = useState<string>("");
 
   useEffect(() => {
     if (selectedSection === section && isEditable) {
@@ -28,6 +29,16 @@ const Heading: React.FC<Props> = ({ isEditable, section }) => {
       headRef.current?.blur();
     }
   }, [selectedSection]);
+
+  useEffect(() => {
+    if (section.size.rows === 1) {
+      setFontSize("calc(var(--font-size) * 1.5)");
+    } else if (section.size.rows === 2) {
+      setFontSize("calc(var(--font-size) * 2.25)");
+    } else if (section.size.rows > 2) {
+      setFontSize("calc(var(--font-size) * 3)");
+    }
+  }, [section.size.rows]);
 
   return (
     <div
@@ -61,7 +72,7 @@ const Heading: React.FC<Props> = ({ isEditable, section }) => {
             }
           }}
           style={{
-            fontSize: section.size.rows > 1 ? "2.25rem" : "",
+            fontSize,
             textAlign,
           }}
         >

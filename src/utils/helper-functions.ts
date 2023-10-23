@@ -21,3 +21,9 @@ export function getColor() {
 
 export const clamp = (val: number, min: number, max: number) =>
   Math.min(Math.max(val, min), max);
+
+export const wrapAround = (val: number, min: number, max: number) => {
+  const range = max - min + 1;
+  const offsetValue = ((((val - min) % range) + range) % range) + min;
+  return offsetValue;
+};

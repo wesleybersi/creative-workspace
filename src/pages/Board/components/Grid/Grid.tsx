@@ -4,7 +4,8 @@ import useStore from "../../../../store/store";
 import { useEffect, useRef, useState } from "react";
 import GridSection from "./components/GridSection/GridSection";
 import useWindowSize from "../../../../hooks/useWindowSize";
-import GridArea from "./components/GridArea/GridArea";
+import GridCarousel from "./components/GridCarousel/GridCarousel";
+import Carousel from "../../../../store/data/carousel";
 
 interface Props {
   board: Board;
@@ -31,17 +32,54 @@ const Grid: React.FC<Props> = ({ board }) => {
   const { size } = board;
   const [preview] = useState<boolean>(false);
 
+  const [carouselTracker, setCarouselTracker] = useState<Map<string, number>>(
+    new Map()
+  );
+
   //Form a new section when letting go of the mouse
   useEffect(() => {
     if (!isMouseDown && selection && selectedType) {
-      if (selectedType === "Area") {
+      if (mode === "Interact") return;
+      if (selectedType === "Carousel") {
         newArea(board.id, selection);
+      } else if (selectedType === "BackgroundColor") {
+        for (const tile of selectedTiles) {
+          if (gridRef.current) {
+            const children = gridRef.current.children;
+            const cell = children[tile.index] as HTMLElement;
+            if (cell) cell.style.backgroundColor = "lightblue";
+          }
+        }
       } else {
-        newSection(board.id, selectedType, selection);
+        let foundCarousel = "";
+        let carouselSlide = -1;
+        for (const tile of selectedTiles) {
+          if (board.tiles[tile.row][tile.col].carousel) {
+            foundCarousel = board.tiles[tile.row][tile.col].carousel;
+            break;
+          }
+        }
+
+        if (
+          !selectedTiles.every(
+            (tile) => board.tiles[tile.row][tile.col].carousel === foundCarousel
+          )
+        ) {
+          foundCarousel = "";
+        } else {
+          carouselSlide = carouselTracker.get(foundCarousel) ?? -1;
+        }
+        newSection(
+          board.id,
+          selectedType,
+          selection,
+          foundCarousel ?? undefined,
+          carouselSlide >= 0 ? carouselSlide : undefined
+        );
       }
       set({ selection: null, selectedSection: null });
     }
-  }, [isMouseDown]);
+  }, [isMouseDown, gridRef]);
 
   //Set global cellsize for future reference
   useEffect(() => {
@@ -137,7 +175,8 @@ const Grid: React.FC<Props> = ({ board }) => {
                       : ""
                   }`}
                   style={{
-                    opacity: preview || mode === "Interact" ? 0 : tile.opacity,
+                    // opacity: preview || mode === "Interact" ? 0 : tile.opacity,
+                    border: preview || mode === "Interact" ? "none" : "",
                   }}
                   onClick={() => console.log("click")}
                   onDoubleClick={() => console.log("double click")}
@@ -212,9 +251,16 @@ const Grid: React.FC<Props> = ({ board }) => {
             gridTemplateRows: `repeat(${size.rows},1fr)`,
           }}
         >
-          {board.areas.map((area) => (
-            <GridArea area={area} gridRef={gridRef.current} />
-          ))}
+          {board.areas.map(
+            (area) =>
+              area instanceof Carousel && (
+                <GridCarousel
+                  carousel={area}
+                  gridRef={gridRef.current}
+                  setCarouselTracker={setCarouselTracker}
+                />
+              )
+          )}
         </section>
       </div>
     </>

@@ -14,7 +14,7 @@ interface Props {
 }
 
 const Image: React.FC<Props> = ({ section, isEditable }) => {
-  const { updateSection, selectedSection } = useStore();
+  const { updateSection, selectedSection, mode } = useStore();
   const [backgroundImage, setBackgroundImage] = useState<string>("");
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [zoomLevel, setZoomLevel] = useState<number>(0);
@@ -63,17 +63,19 @@ const Image: React.FC<Props> = ({ section, isEditable }) => {
       onMouseUp={() => setIsMouseDown(false)}
     >
       <div className={styles.content}>
-        <div className={styles.upload}>
-          <DropTarget section={section} />
+        {mode === "Edit" && (
+          <div className={styles.upload}>
+            <DropTarget section={section} />
 
-          <input
-            type="file"
-            ref={fileInputRef}
-            style={{ display: "none" }}
-            accept="image/*"
-            onChange={handleFileChange}
-          />
-        </div>
+            <input
+              type="file"
+              ref={fileInputRef}
+              style={{ display: "none" }}
+              accept="image/*"
+              onChange={handleFileChange}
+            />
+          </div>
+        )}
       </div>
       {selectedSection === section &&
         (!backgroundImage ? (
@@ -105,6 +107,14 @@ const Image: React.FC<Props> = ({ section, isEditable }) => {
               },
               {
                 tooltip: "Upload image",
+                icon: IconUpload,
+                isSelected: false,
+                onClick: () => {
+                  triggerFileInput();
+                },
+              },
+              {
+                tooltip: "Cover",
                 icon: IconUpload,
                 isSelected: false,
                 onClick: () => {
