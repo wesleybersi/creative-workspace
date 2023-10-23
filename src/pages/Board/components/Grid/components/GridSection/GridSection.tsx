@@ -148,6 +148,7 @@ const GridSection: React.FC<Props> = ({
             section.type === "Empty Page"
               ? "2px 2px 0 1px rgba(0, 0, 0, 0.1)"
               : "none",
+
           outline: mode === "Edit" ? "2px dashed var(--lightgrey)" : "",
         }}
       >

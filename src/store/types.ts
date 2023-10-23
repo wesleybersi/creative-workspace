@@ -1,5 +1,6 @@
 import Board from "./data/board";
 import Client from "./data/client";
+import Page from "./data/page";
 import Section, { SectionType } from "./data/section";
 import Tile from "./data/tile";
 
@@ -16,11 +17,30 @@ interface Store {
   selection: Selection | null;
   selectedType: SectionType | null;
   selectedTiles: Tile[];
+  selectedPage: Page | null;
   selectedSection: Section | null;
   cellSize: number;
   //Boards
   newBoard: () => void;
   expandBoard: (boardId: string) => void;
+
+  //Pages
+  newPage: (
+    boardId: string,
+    position: {
+      row: { start: number; end: number };
+      col: { start: number; end: number };
+    }
+  ) => void;
+
+  //Areas
+  newArea: (
+    boardId: string,
+    position: {
+      row: { start: number; end: number };
+      col: { start: number; end: number };
+    }
+  ) => void;
 
   //Sections
   newSection: (
@@ -32,13 +52,6 @@ interface Store {
     },
     carouselId?: string,
     carouselSlide?: number
-  ) => void;
-  newArea: (
-    boardId: string,
-    position: {
-      row: { start: number; end: number };
-      col: { start: number; end: number };
-    }
   ) => void;
   deleteSection: (boardId: string, sectionId: string) => void;
   expandSection: (

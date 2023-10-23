@@ -6,6 +6,7 @@ import Section, { SectionType } from "./data/section";
 import Tile from "./data/tile";
 import { updateSectionInBoard } from "./utilities";
 import Carousel from "./data/carousel";
+import { getColor } from "../utils/helper-functions";
 
 const useStore = create<Store>((set) => ({
   client: new Client("Joanna Lee"),
@@ -18,6 +19,7 @@ const useStore = create<Store>((set) => ({
   newestSectionId: "",
   selectedType: null,
   selectedTiles: [],
+  selectedPage: null,
   selectedSection: null,
   selection: null,
   cellSize: 0,
@@ -142,6 +144,8 @@ const useStore = create<Store>((set) => ({
           noteColors[Math.floor(Math.random() * noteColors.length)];
       } else if (type === "Emoji") {
         section.color = "transparent";
+      } else if (type === "Color") {
+        section.color = getColor();
       } else if (type !== "Empty Page") {
         section.color = "transparent";
       }

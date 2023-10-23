@@ -17,6 +17,7 @@ import { HiOutlineArrowRight as IconLine } from "react-icons/hi";
 import { BsEmojiWink as IconEmoji } from "react-icons/bs";
 import { RxSection as IconArea } from "react-icons/rx";
 import { MdViewCarousel as IconCarousel } from "react-icons/md";
+import { HiColorSwatch as IconColor } from "react-icons/hi";
 export default class Section {
   id: string;
   boardId: string;
@@ -127,6 +128,10 @@ export const sectionTypes: SectionTypeData[] = [
   {
     name: "To-do",
     icon: IconTodo,
+  },
+  {
+    name: "Color",
+    icon: IconColor,
   },
   {
     name: "Image",

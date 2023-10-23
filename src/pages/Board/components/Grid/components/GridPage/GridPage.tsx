@@ -8,7 +8,7 @@ import useHandles from "./hooks/useHandles";
 import useDragSection from "./hooks/useDragSection";
 
 interface Props {
-  section: Section;
+  page: Section;
   gridRef: HTMLDivElement | null;
   z: number;
   bringToTop?: (sectionId: string) => void;
@@ -18,7 +18,7 @@ interface Props {
 }
 
 const GridSection: React.FC<Props> = ({
-  section,
+  page: section,
   gridRef,
   z,
   bringToTop,

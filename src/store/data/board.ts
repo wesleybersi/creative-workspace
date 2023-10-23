@@ -1,4 +1,5 @@
 import Carousel from "./carousel";
+import Page from "./page";
 import Section from "./section";
 import Tile from "./tile";
 
@@ -8,6 +9,7 @@ export default class Board {
   size: { rows: number; cols: number };
   tiles: Tile[][];
   sections: Section[] = [];
+  pages: Map<string, Page> = new Map();
   areas: Carousel[] = [];
   name = "";
   description: string[] = [];
